@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<!-- $Id$ -->
+<suite name="Unit Test Suite" verbose="1">
+
+    <parameter name="logLevel" value="INFO"/>
+    <parameter name="logPattern" value="%-5p [%t]: %m%n"/>
+    <parameter name="deleteTempDirs" value="true"/>
+    <parameter name="randomSeed" value=""/>
+
+    <test name="Unit Tests">
+        <packages>
+            <package name="org.dellroad.jvser"/>
+        </packages>
+    </test>
+
+</suite>
+
