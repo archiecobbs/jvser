@@ -44,6 +44,44 @@
         <dellroad:showbugs location="${findbugs.home}"/>
     </target>
 
+    <!-- Update patch file -->
+    <target name="update-patch" description="update commons-net patch file">
+        <exec executable="/bin/bash" logError="true" failonerror="true">
+            <arg value="-cx"/>
+            <arg value="( cd src/commons-net-telnet/modsrc &amp;&amp; svn diff ) &gt; src/commons-net-telnet/patch.txt"/>
+        </exec>
+    </target>
+
+    <!-- Custom patches to commons-net telnet package -->
+    <target name="telnet.sources">
+        <delete dir="build/java/org/dellroad/jvser/telnet"/>
+        <mkdir dir="build/java/org/dellroad/jvser/telnet"/>
+        <copy todir="build/java/org/dellroad/jvser/telnet">
+            <fileset dir="src/commons-net-telnet/src"/>
+        </copy>
+        <patch patchfile="src/commons-net-telnet/patch.txt" dir="build/java/org/dellroad/jvser/telnet" strip="0"/>
+        <replace dir="build/java/org/dellroad/jvser/telnet"
+          token="org.apache.commons.net.telnet" value="org.dellroad.jvser.telnet"/>
+    </target>
+
+    <!-- Custom javac target to include patched commons-net stuff -->
+    <target name="javac" depends="telnet.sources, javac.classpath, testng.classpath" unless="javac.completed">
+        <copy todir="build/java">
+            <fileset dir="src/java"/>
+        </copy>
+        <mkdir dir="build/classes"/>
+        <dellroad:javac-default srcdir="build/java" destdir="build/classes">
+            <classpath refid="javac.classpath"/>
+        </dellroad:javac-default>
+        <mkdir dir="build/test"/>
+        <dellroad:javac-default srcdir="src/test" destdir="build/test">
+            <classpath path="build/classes"/>
+            <classpath refid="javac.classpath"/>
+            <classpath refid="testng.classpath"/>
+        </dellroad:javac-default>
+        <property name="javac.completed" value="true"/>
+    </target>
+
     <!-- Build distribution files -->
     <target name="jars" depends="javac, javadoc, runtime.classpath" unless="jars.completed">
         <delete dir="build/dist"/>
@@ -84,7 +122,11 @@
     <!-- Checkstyle the source -->
     <target name="checkstyle" description="Run checkstyle report"
       depends="javac.classpath, unittest.classpath, checkstyle.classpath">
-        <dellroad:checkstyle maxWarnings="5" maxErrors="0"/>
+        <dellroad:checkstyle maxWarnings="5" maxErrors="0">
+            <excludes>
+                <exclude name="commons-net-telnet/**/*"/>
+            </excludes>
+        </dellroad:checkstyle>
     </target>
 
     <!-- Run unit tests -->

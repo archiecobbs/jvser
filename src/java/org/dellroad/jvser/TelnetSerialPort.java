@@ -19,11 +19,13 @@ import javax.comm.SerialPortEvent;
 import javax.comm.SerialPortEventListener;
 import javax.comm.UnsupportedCommOperationException;
 
-import org.apache.commons.net.telnet.EchoOptionHandler;
-import org.apache.commons.net.telnet.InvalidTelnetOptionException;
-import org.apache.commons.net.telnet.SuppressGAOptionHandler;
-import org.apache.commons.net.telnet.TerminalTypeOptionHandler;
 import org.apache.log4j.Logger;
+import org.dellroad.jvser.telnet.EchoOptionHandler;
+import org.dellroad.jvser.telnet.InvalidTelnetOptionException;
+import org.dellroad.jvser.telnet.SuppressGAOptionHandler;
+import org.dellroad.jvser.telnet.TelnetClient;
+import org.dellroad.jvser.telnet.TelnetInputListener;
+import org.dellroad.jvser.telnet.TerminalTypeOptionHandler;
 import static org.dellroad.jvser.RFC2217.*;
 
 /**
@@ -33,7 +35,7 @@ import static org.dellroad.jvser.RFC2217.*;
  * <p>
  * This class extends the {@link SerialPort} class and functions in the same way, however, setup is
  * slightly different. First, instantiate an instance of this class directly, and then "open" it
- * using some variant of {@link org.apache.commons.net.telnet.TelnetClient#connect(java.net.InetAddress, int) connect()}.
+ * using some variant of {@link TelnetClient#connect(java.net.InetAddress, int) connect()}.
  * After this point, it should act just like a "real" serial port.
  * </p>
  *
@@ -90,11 +92,10 @@ public class TelnetSerialPort extends SerialPort {
     }
 
     private final Logger log = Logger.getLogger(getClass());
-    private final EnhancedTelnetClient telnetClient;
+    private final TelnetClient telnetClient;
 
     private String name;
     private String signature = getClass().getName();
-    private NotifyInputStream input;
     private State state;
     private SerialPortEventListener listener;
 
@@ -164,17 +165,17 @@ public class TelnetSerialPort extends SerialPort {
     }
 
     /**
-     * Get the {@link org.apache.commons.net.telnet.TelnetClient} associated with this instance.
+     * Get the {@link TelnetClient} associated with this instance.
      */
-    public EnhancedTelnetClient getTelnetClient() {
+    public TelnetClient getTelnetClient() {
         return this.telnetClient;
     }
 
     /**
-     * Construct and configure the {@link org.apache.commons.net.telnet.TelnetClient} to be used for this instance.
+     * Construct and configure the {@link TelnetClient} to be used for this instance.
      */
-    protected EnhancedTelnetClient createTelnetClient() throws IOException {
-        EnhancedTelnetClient tc = new EnhancedTelnetClient(DEFAULT_TERMINAL_TYPE);
+    protected TelnetClient createTelnetClient() throws IOException {
+        TelnetClient tc = new TelnetClient(DEFAULT_TERMINAL_TYPE);
         tc.setReaderThread(true);                                   // allows immediate option negotiation
         tc.setTcpNoDelay(true);
         try {
@@ -185,6 +186,14 @@ public class TelnetSerialPort extends SerialPort {
         } catch (InvalidTelnetOptionException e) {
             throw new RuntimeException("unexpected exception", e);
         }
+        tc.registerInputListener(new TelnetInputListener() {
+
+            @Override
+            public void telnetInputAvailable() {
+                if ((TelnetSerialPort.this.lineStateNotify & LINESTATE_DATA_READY) != 0)
+                    TelnetSerialPort.this.sendEvent(SerialPortEvent.DATA_AVAILABLE);
+            }
+        });
         return tc;
     }
 
@@ -194,16 +203,7 @@ public class TelnetSerialPort extends SerialPort {
     @Override
     public synchronized InputStream getInputStream() throws IOException {
         this.state.checkAllowNormalOperation();
-        if (this.input == null) {
-            this.input = new NotifyInputStream(this.telnetClient.getInputStream(), new NotifyInputStream.Listener() {
-                @Override
-                public void notifyDataAvailable(NotifyInputStream in) {
-                    if ((TelnetSerialPort.this.lineStateNotify & LINESTATE_DATA_READY) != 0)
-                        TelnetSerialPort.this.sendEvent(SerialPortEvent.DATA_AVAILABLE);
-                }
-            });
-        }
-        return this.input;
+        return this.telnetClient.getInputStream();
     }
 
     @Override
@@ -219,14 +219,6 @@ public class TelnetSerialPort extends SerialPort {
         this.state.checkAllowNormalOperation();
         log.debug(this.name + ": closing connection");
         this.state = State.CLOSED;
-        if (this.input != null) {
-            try {
-                this.input.close();
-            } catch (IOException e) {
-                log.debug(this.name + ": exception closing input stream (ignoring)", e);
-            }
-            this.input = null;
-        }
         try {
             this.telnetClient.disconnect();
         } catch (IOException e) {
