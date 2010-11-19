@@ -9,9 +9,8 @@ package org.dellroad.jvser;
 
 import java.io.UnsupportedEncodingException;
 
-import org.apache.commons.net.telnet.TelnetOptionHandler;
 import org.apache.log4j.Logger;
-
+import org.dellroad.jvser.telnet.TelnetOptionHandler;
 import static org.dellroad.jvser.RFC2217.*;
 
 /**
