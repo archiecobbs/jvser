@@ -10,7 +10,6 @@ package org.dellroad.jvser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.util.TooManyListenersException;
 
@@ -286,13 +285,13 @@ public class TelnetSerialPort extends SerialPort {
     @Override
     public synchronized void sendBreak(int millis) {
         this.state.checkAllowNormalOperation();
-        this.sendSubnegotiation(SET_CONTROL, CONTROL_BREAK_ON);
+        this.sendSubnegotiation(new ControlCommand(true, CONTROL_BREAK_ON));
         try {
             Thread.currentThread().sleep(millis);
         } catch (InterruptedException e) {
             // ignore
         }
-        this.sendSubnegotiation(SET_CONTROL, CONTROL_BREAK_OFF);
+        this.sendSubnegotiation(new ControlCommand(true, CONTROL_BREAK_OFF));
     }
 
     @Override
@@ -316,9 +315,9 @@ public class TelnetSerialPort extends SerialPort {
 
         // Update server (outbound first per RFC 2217)
         if (this.flowControlOutbound != previousFlowControlOutbound && this.state.comPortEstablished())
-            this.sendSubnegotiation(SET_CONTROL, this.flowControlOutbound);
+            this.sendSubnegotiation(new ControlCommand(true, this.flowControlOutbound));
         if (this.flowControlInbound != previousFlowControlInbound && this.state.comPortEstablished())
-            this.sendSubnegotiation(SET_CONTROL, this.flowControlInbound);
+            this.sendSubnegotiation(new ControlCommand(true, this.flowControlInbound));
     }
 
     @Override
@@ -435,7 +434,7 @@ public class TelnetSerialPort extends SerialPort {
         if (this.dtr != value) {
             this.dtr = value;
             if (this.state.comPortEstablished())
-                this.sendSubnegotiation(SET_CONTROL, this.dtr ? CONTROL_DTR_ON : CONTROL_DTR_OFF);
+                this.sendSubnegotiation(new ControlCommand(true, this.dtr ? CONTROL_DTR_ON : CONTROL_DTR_OFF));
         }
     }
 
@@ -451,7 +450,7 @@ public class TelnetSerialPort extends SerialPort {
         if (this.rts != value) {
             this.rts = value;
             if (this.state.comPortEstablished())
-                this.sendSubnegotiation(SET_CONTROL, this.rts ? CONTROL_RTS_ON : CONTROL_RTS_OFF);
+                this.sendSubnegotiation(new ControlCommand(true, this.rts ? CONTROL_RTS_ON : CONTROL_RTS_OFF));
         }
     }
 
@@ -501,23 +500,121 @@ public class TelnetSerialPort extends SerialPort {
                 return;
         }
 
+        // Request signature from peer
+        this.sendSubnegotiation(new SignatureCommand(true));
+
         // Send signature if desired
-        if (this.signature != null) {
-            try {
-                this.sendSubnegotiation(SIGNATURE, this.signature.getBytes("UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                log.error(this.name + ": can't encode signature to UTF-8", e);
-            }
-        }
+        if (this.signature != null && this.signature.length() > 0)
+            this.sendSubnegotiation(new SignatureCommand(true, this.signature));
 
         // Send all configuration information
         this.sendSerialPortGeometry();
-        this.sendSubnegotiation(SET_LINESTATE_MASK, this.lineStateMask);
-        this.sendSubnegotiation(SET_MODEMSTATE_MASK, this.modemStateMask);
-        this.sendSubnegotiation(SET_CONTROL, this.flowControlInbound);
-        this.sendSubnegotiation(SET_CONTROL, this.flowControlOutbound);
-        this.sendSubnegotiation(SET_CONTROL, this.dtr ? CONTROL_DTR_ON : CONTROL_DTR_OFF);
-        this.sendSubnegotiation(SET_CONTROL, this.rts ? CONTROL_RTS_ON : CONTROL_RTS_OFF);
+        this.sendSubnegotiation(new LineStateMaskCommand(true, this.lineStateMask));
+        this.sendSubnegotiation(new ModemStateMaskCommand(true, this.modemStateMask));
+        this.sendSubnegotiation(new ControlCommand(true, this.flowControlInbound));
+        this.sendSubnegotiation(new ControlCommand(true, this.flowControlOutbound));
+        this.sendSubnegotiation(new ControlCommand(true, this.dtr ? CONTROL_DTR_ON : CONTROL_DTR_OFF));
+        this.sendSubnegotiation(new ControlCommand(true, this.rts ? CONTROL_RTS_ON : CONTROL_RTS_OFF));
+    }
+
+    // This is invoked by the ComPortOptionHandler when we receive a command from the server
+
+    void handleCommand(ComPortCommand command) {
+        command.visit(new AbstractComPortCommandSwitch() {
+
+            @Override
+            public void caseBaudRate(BaudRateCommand command) {
+                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
+                TelnetSerialPort.this.baudRate = command.getBaudRate();
+            }
+
+            @Override
+            public void caseDataSize(DataSizeCommand command) {
+                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
+                TelnetSerialPort.this.dataSize = command.getDataSize();
+            }
+
+            @Override
+            public void caseParity(ParityCommand command) {
+                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
+                TelnetSerialPort.this.parity = command.getParity();
+            }
+
+            @Override
+            public void caseStopSize(StopSizeCommand command) {
+                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
+                TelnetSerialPort.this.stopSize = command.getStopSize();
+            }
+
+            @Override
+            public void caseControl(ControlCommand command) {
+                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
+                switch (command.getControl()) {
+                case CONTROL_OUTBOUND_FLOW_NONE:
+                case CONTROL_OUTBOUND_FLOW_XON_XOFF:
+                case CONTROL_OUTBOUND_FLOW_HARDWARE:
+                    TelnetSerialPort.this.flowControlOutbound = command.getControl();
+                    break;
+                case CONTROL_DTR_ON:
+                    TelnetSerialPort.this.dtr = true;
+                    break;
+                case CONTROL_DTR_OFF:
+                    TelnetSerialPort.this.dtr = false;
+                    break;
+                case CONTROL_RTS_ON:
+                    TelnetSerialPort.this.rts = true;
+                    break;
+                case CONTROL_RTS_OFF:
+                    TelnetSerialPort.this.rts = false;
+                    break;
+                case CONTROL_INBOUND_FLOW_NONE:
+                case CONTROL_INBOUND_FLOW_XON_XOFF:
+                case CONTROL_INBOUND_FLOW_HARDWARE:
+                    TelnetSerialPort.this.flowControlInbound = command.getControl();
+                    break;
+                default:
+                    log.info(TelnetSerialPort.this.name + ": rec'd " + command + " (ignoring)");
+                    break;
+                }
+            }
+
+            @Override
+            public void caseNotifyLineState(NotifyLineStateCommand command) {
+                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
+                int lineState = command.getLineState();
+                if ((TelnetSerialPort.this.lineStateNotify & lineState & LINESTATE_TRANSFER_SHIFT_REGISTER_EMPTY) != 0)
+                    TelnetSerialPort.this.sendEvent(SerialPortEvent.OUTPUT_BUFFER_EMPTY);
+                if ((TelnetSerialPort.this.lineStateNotify & lineState & LINESTATE_BREAK_DETECT) != 0)
+                    TelnetSerialPort.this.sendEvent(SerialPortEvent.BI);
+                if ((TelnetSerialPort.this.lineStateNotify & lineState & LINESTATE_FRAMING_ERROR) != 0)
+                    TelnetSerialPort.this.sendEvent(SerialPortEvent.FE);
+                if ((TelnetSerialPort.this.lineStateNotify & lineState & LINESTATE_PARITY_ERROR) != 0)
+                    TelnetSerialPort.this.sendEvent(SerialPortEvent.PE);
+                if ((TelnetSerialPort.this.lineStateNotify & lineState & LINESTATE_OVERRUN_ERROR) != 0)
+                    TelnetSerialPort.this.sendEvent(SerialPortEvent.OE);
+                TelnetSerialPort.this.lineStateLast = lineState;
+            }
+
+            @Override
+            public void caseNotifyModemState(NotifyModemStateCommand command) {
+                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
+                int modemState = command.getModemState();
+                if (((modemState & MODEMSTATE_CARRIER_DETECT) ^ TelnetSerialPort.this.modemStateLast) != 0)
+                    TelnetSerialPort.this.sendEvent(SerialPortEvent.CD, (modemState & MODEMSTATE_CARRIER_DETECT) != 0);
+                if (((modemState & MODEMSTATE_RING_INDICATOR) ^ TelnetSerialPort.this.modemStateLast) != 0)
+                    TelnetSerialPort.this.sendEvent(SerialPortEvent.RI, (modemState & MODEMSTATE_RING_INDICATOR) != 0);
+                if (((modemState & MODEMSTATE_DSR) ^ TelnetSerialPort.this.modemStateLast) != 0)
+                    TelnetSerialPort.this.sendEvent(SerialPortEvent.DSR, (modemState & MODEMSTATE_DSR) != 0);
+                if (((modemState & MODEMSTATE_CTS) ^ TelnetSerialPort.this.modemStateLast) != 0)
+                    TelnetSerialPort.this.sendEvent(SerialPortEvent.CTS, (modemState & MODEMSTATE_CTS) != 0);
+                TelnetSerialPort.this.modemStateLast = modemState;
+            }
+
+            @Override
+            protected void caseDefault(ComPortCommand command) {
+                log.info(TelnetSerialPort.this.name + ": rec'd " + command + " (ignoring)");
+            }
+        });
     }
 
     // Listener management
@@ -541,98 +638,70 @@ public class TelnetSerialPort extends SerialPort {
     public synchronized void notifyOnDataAvailable(boolean value) {
         this.state.checkAllowNormalOperation();
         if (updateLineStateMask(LINESTATE_DATA_READY, value) && this.state.comPortEstablished())
-            this.sendSubnegotiation(SET_LINESTATE_MASK, this.lineStateMask);
+            this.sendSubnegotiation(new LineStateMaskCommand(true, this.lineStateMask));
     }
 
     @Override
     public synchronized void notifyOnOutputEmpty(boolean value) {
         this.state.checkAllowNormalOperation();
         if (updateLineStateMask(LINESTATE_TRANSFER_SHIFT_REGISTER_EMPTY, value) && this.state.comPortEstablished())
-            this.sendSubnegotiation(SET_LINESTATE_MASK, this.lineStateMask);
+            this.sendSubnegotiation(new LineStateMaskCommand(true, this.lineStateMask));
     }
 
     @Override
     public synchronized void notifyOnCTS(boolean value) {
         this.state.checkAllowNormalOperation();
         if (updateModemStateMask(MODEMSTATE_CTS, value) && this.state.comPortEstablished())
-            this.sendSubnegotiation(SET_MODEMSTATE_MASK, this.modemStateMask);
+            this.sendSubnegotiation(new ModemStateMaskCommand(true, this.modemStateMask));
     }
 
     @Override
     public synchronized void notifyOnDSR(boolean value) {
         this.state.checkAllowNormalOperation();
         if (updateModemStateMask(MODEMSTATE_DSR, value) && this.state.comPortEstablished())
-            this.sendSubnegotiation(SET_MODEMSTATE_MASK, this.modemStateMask);
+            this.sendSubnegotiation(new ModemStateMaskCommand(true, this.modemStateMask));
     }
 
     @Override
     public synchronized void notifyOnRingIndicator(boolean value) {
         this.state.checkAllowNormalOperation();
         if (updateModemStateMask(MODEMSTATE_RING_INDICATOR, value) && this.state.comPortEstablished())
-            this.sendSubnegotiation(SET_MODEMSTATE_MASK, this.modemStateMask);
+            this.sendSubnegotiation(new ModemStateMaskCommand(true, this.modemStateMask));
     }
 
     @Override
     public synchronized void notifyOnCarrierDetect(boolean value) {
         this.state.checkAllowNormalOperation();
         if (updateModemStateMask(MODEMSTATE_CARRIER_DETECT, value) && this.state.comPortEstablished())
-            this.sendSubnegotiation(SET_MODEMSTATE_MASK, this.modemStateMask);
+            this.sendSubnegotiation(new ModemStateMaskCommand(true, this.modemStateMask));
     }
 
     @Override
     public synchronized void notifyOnOverrunError(boolean value) {
         this.state.checkAllowNormalOperation();
         if (updateLineStateMask(LINESTATE_OVERRUN_ERROR, value) && this.state.comPortEstablished())
-            this.sendSubnegotiation(SET_LINESTATE_MASK, this.lineStateMask);
+            this.sendSubnegotiation(new LineStateMaskCommand(true, this.lineStateMask));
     }
 
     @Override
     public synchronized void notifyOnParityError(boolean value) {
         this.state.checkAllowNormalOperation();
         if (updateLineStateMask(LINESTATE_PARITY_ERROR, value) && this.state.comPortEstablished())
-            this.sendSubnegotiation(SET_LINESTATE_MASK, this.lineStateMask);
+            this.sendSubnegotiation(new LineStateMaskCommand(true, this.lineStateMask));
     }
 
     @Override
     public synchronized void notifyOnFramingError(boolean value) {
         this.state.checkAllowNormalOperation();
         if (updateLineStateMask(LINESTATE_FRAMING_ERROR, value) && this.state.comPortEstablished())
-            this.sendSubnegotiation(SET_LINESTATE_MASK, this.lineStateMask);
+            this.sendSubnegotiation(new LineStateMaskCommand(true, this.lineStateMask));
     }
 
     @Override
     public synchronized void notifyOnBreakInterrupt(boolean value) {
         this.state.checkAllowNormalOperation();
         if (updateLineStateMask(LINESTATE_BREAK_DETECT, value) && this.state.comPortEstablished())
-            this.sendSubnegotiation(SET_LINESTATE_MASK, this.lineStateMask);
-    }
-
-    // Methods invoked when the remote access server notifies us of line or modem state changes
-
-    synchronized void notifyLineState(int value) {
-        if ((this.lineStateNotify & value & LINESTATE_TRANSFER_SHIFT_REGISTER_EMPTY) != 0)
-            this.sendEvent(SerialPortEvent.OUTPUT_BUFFER_EMPTY);
-        if ((this.lineStateNotify & value & LINESTATE_BREAK_DETECT) != 0)
-            this.sendEvent(SerialPortEvent.BI);
-        if ((this.lineStateNotify & value & LINESTATE_FRAMING_ERROR) != 0)
-            this.sendEvent(SerialPortEvent.FE);
-        if ((this.lineStateNotify & value & LINESTATE_PARITY_ERROR) != 0)
-            this.sendEvent(SerialPortEvent.PE);
-        if ((this.lineStateNotify & value & LINESTATE_OVERRUN_ERROR) != 0)
-            this.sendEvent(SerialPortEvent.OE);
-        this.lineStateLast = value;
-    }
-
-    synchronized void notifyModemState(int value) {
-        if (((value & MODEMSTATE_CARRIER_DETECT) ^ modemStateLast) != 0)
-            this.sendEvent(SerialPortEvent.CD, (value & MODEMSTATE_CARRIER_DETECT) != 0);
-        if (((value & MODEMSTATE_RING_INDICATOR) ^ modemStateLast) != 0)
-            this.sendEvent(SerialPortEvent.RI, (value & MODEMSTATE_RING_INDICATOR) != 0);
-        if (((value & MODEMSTATE_DSR) ^ modemStateLast) != 0)
-            this.sendEvent(SerialPortEvent.DSR, (value & MODEMSTATE_DSR) != 0);
-        if (((value & MODEMSTATE_CTS) ^ modemStateLast) != 0)
-            this.sendEvent(SerialPortEvent.CTS, (value & MODEMSTATE_CTS) != 0);
-        this.modemStateLast = value;
+            this.sendSubnegotiation(new LineStateMaskCommand(true, this.lineStateMask));
     }
 
     private void sendEvent(int type) {
@@ -656,46 +725,20 @@ public class TelnetSerialPort extends SerialPort {
 
     // Send serial port "geometry" in the order recommended by RFC 2217 (section 2)
     private void sendSerialPortGeometry() {
-        this.sendSubnegotiation(SET_BAUDRATE, this.baudRate);
-        this.sendSubnegotiation(SET_DATASIZE, this.dataSize);
-        this.sendSubnegotiation(SET_PARITY, this.parity);
-        this.sendSubnegotiation(SET_STOPSIZE, this.stopSize);
+        this.sendSubnegotiation(new BaudRateCommand(true, this.baudRate));
+        this.sendSubnegotiation(new DataSizeCommand(true, this.dataSize));
+        this.sendSubnegotiation(new ParityCommand(true, this.parity));
+        this.sendSubnegotiation(new StopSizeCommand(true, this.stopSize));
     }
 
     // Internal utility methods
 
-    private void sendSubnegotiation(int suboption, byte value) {
-        this.sendSubnegotiation(suboption, new byte[] { value });
-    }
-
-    private void sendSubnegotiation(int suboption, int value) {
-        byte[] buf = new byte[4];
-        buf[0] = (byte)(value >> 24);
-        buf[1] = (byte)(value >> 16);
-        buf[2] = (byte)(value >>  8);
-        buf[3] = (byte)value;
-        this.sendSubnegotiation(suboption, buf);
-    }
-
-    private void sendSubnegotiation(int suboption, byte[] payload) {
-        int nlen = 2 + payload.length;
-        for (int i = 0; i < payload.length; i++) {
-            if (payload[i] == (byte)0xff)
-                nlen++;
-        }
-        int[] nbuf = new int[nlen];
-        int j = 0;
-        nbuf[j++] = COM_PORT_OPTION;
-        nbuf[j++] = suboption;
-        for (int i = 0; i < payload.length; i++) {
-            nbuf[j++] = payload[i] & 0xff;
-            if (payload[i] == (byte)0xff)
-                nbuf[j++] = 0xff;
-        }
+    // Send a subnegotiation to the peer
+    private void sendSubnegotiation(ComPortCommand command) {
         try {
             if (log.isDebugEnabled())
-                log.debug(this.name + ": send COM-PORT-OPTION " + RFC2217.decodeSubnegotiation(nbuf, 1, nbuf.length - 1));
-            this.telnetClient.sendSubnegotiation(nbuf);
+                log.debug(this.name + ": send " + command);
+            this.telnetClient.sendSubnegotiation(command.getBytes());
         } catch (IOException e) {
             throw new DisconnectedException(e);
         }
