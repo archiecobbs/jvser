@@ -1,0 +1,78 @@
+
+/*
+ * Copyright (C) 2010 Archie L. Cobbs. All rights reserved.
+ *
+ * $Id$
+ */
+
+package org.dellroad.jvser;
+
+import static org.dellroad.jvser.RFC2217.*;
+
+/**
+ * RFC 2217 {@code SET-LINESTATE-MASK} command.
+ *
+ * @see <a href="http://tools.ietf.org/html/rfc2217">RFC 2217</a>
+ */
+public class LineStateMaskCommand extends ComPortCommand {
+
+    private int lineStateMask;
+
+    /**
+     * Decoding constructor.
+     *
+     * @param bytes encoded option starting with the {@code COM-PORT-OPTION} byte
+     * @throws NullPointerException if {@code bytes} is null
+     * @throws IllegalArgumentException if {@code bytes} has length != 3
+     * @throws IllegalArgumentException if {@code bytes[0]} is not {@link RFC2217#COM_PORT_OPTION}
+     * @throws IllegalArgumentException if {@code bytes[1]} is not {@link RFC2217#SET_LINESTATE_MASK} (client or server)
+     */
+    public LineStateMaskCommand(int[] bytes) {
+        super(bytes, SET_LINESTATE_MASK);
+        this.lineStateMask = bytes[2];
+    }
+
+    /**
+     * Encoding constructor.
+     *
+     * @param lineStateMask line state mask value
+     * @param client true for the client command, false for the server command
+     */
+    public LineStateMaskCommand(boolean client, int lineStateMask) {
+        this(new int[] {
+            COM_PORT_OPTION,
+            client ? SET_LINESTATE_MASK : SET_LINESTATE_MASK + SERVER_OFFSET,
+            lineStateMask
+        });
+    }
+
+    @Override
+    public String getName() {
+        return "SET-LINESTATE-MASK";
+    }
+
+    @Override
+    public String toString() {
+        return this.getName() + " " + Util.decodeBits(this.lineStateMask, Util.LINE_STATE_BITS);
+    }
+
+    @Override
+    public void visit(ComPortCommandSwitch sw) {
+        sw.caseLineStateMask(this);
+    }
+
+    public int getLineStateMask() {
+        return this.lineStateMask;
+    }
+
+    @Override
+    int getMinLength() {
+        return 1;
+    }
+
+    @Override
+    int getMaxLength() {
+        return 1;
+    }
+}
+

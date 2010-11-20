@@ -7,7 +7,6 @@
 
 package org.dellroad.jvser;
 
-import java.io.UnsupportedEncodingException;
 
 import org.apache.log4j.Logger;
 import org.dellroad.jvser.telnet.TelnetOptionHandler;
@@ -32,42 +31,25 @@ public class ComPortOptionHandler extends TelnetOptionHandler {
 
     @Override
     public int[] answerSubnegotiation(int[] data, int length) {
-        if (length < 2) {
-            log.warn(this.port.getName() + ": rec'd COM-PORT-OPTION subnegotiation with bogus length " + length);
+
+        // Copy data into buffer of the correct size
+        if (data.length != length) {
+            int[] data2 = new int[length];
+            System.arraycopy(data, 0, data2, 0, length);
+            data = data2;
+        }
+
+        // Decode option
+        ComPortCommand command;
+        try {
+            command = RFC2217.decodeComPortCommand(data);
+        } catch (IllegalArgumentException e) {
+            log.error(this.port.getName() + ": rec'd invalid COM-PORT-OPTION command: " + e.getMessage());
             return null;
         }
-        log.debug(this.port.getName() + ": rec'd COM-PORT-OPTION " + RFC2217.decodeSubnegotiation(data, 1, length - 1));
-        switch (data[1]) {
-        case SERVER_OFFSET + SIGNATURE:
-            byte[] buf = new byte[length - 2];
-            for (int i = 2; i < length; i++)
-                buf[i - 2] = (byte)data[i];
-            String signature;
-            try {
-                signature = new String(buf, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                signature = "" + e;
-            }
-            log.info(this.port.getName() + ": rec'd remote signature: " + signature);
-            break;
-        case SERVER_OFFSET + NOTIFY_LINESTATE:
-            if (length != 3) {
-                log.warn(this.port.getName() + ": rec'd COM-PORT-OPTION NOTIFY-LINESTATE with bogus length " + length);
-                break;
-            }
-            this.port.notifyLineState(data[2]);
-            break;
-        case SERVER_OFFSET + NOTIFY_MODEMSTATE:
-            if (length != 3) {
-                log.warn(this.port.getName() + ": rec'd COM-PORT-OPTION NOTIFY-MODEMSTATE with bogus length " + length);
-                break;
-            }
-            this.port.notifyModemState(data[2]);
-            break;
-        default:
-            log.warn(this.port.getName() + ": rec'd unrecognized COM-PORT-OPTION subnegotiation code " + data[1]);
-            break;
-        }
+
+        // Notify port
+        this.port.handleCommand(command);
         return null;
     }
 
