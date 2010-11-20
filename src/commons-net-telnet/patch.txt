@@ -66,7 +66,15 @@ Index: TelnetInputStream.java
 ===================================================================
 --- TelnetInputStream.java	(revision 1037080)
 +++ TelnetInputStream.java	(working copy)
-@@ -208,6 +208,9 @@
+@@ -122,6 +122,7 @@
+      * or -1 (EOF) if end of stread reached,
+      * or -2 (WOULD_BLOCK) if mayBlock is false and there is no data available
+      */
++    @SuppressWarnings("fallthrough")
+     private int __read(boolean mayBlock) throws IOException
+     {
+         int ch;
+@@ -208,6 +209,9 @@
                      __receiveState = _STATE_SB;
                      continue;
                  /* TERMINAL-TYPE option (end)*/
@@ -76,7 +84,7 @@ Index: TelnetInputStream.java
                  case TelnetCommand.IAC:
                      __receiveState = _STATE_DATA;
                      break; // exit to enclosing switch to return IAC from read
-@@ -258,7 +261,8 @@
+@@ -258,7 +262,8 @@
                      continue;
                  default:
                      // store suboption char
@@ -86,7 +94,7 @@ Index: TelnetInputStream.java
                      break;
                  }
                  __receiveState = _STATE_SB;
-@@ -274,11 +278,14 @@
+@@ -274,11 +279,14 @@
                      }
                      __receiveState = _STATE_DATA;
                      continue;
@@ -104,7 +112,7 @@ Index: TelnetInputStream.java
                  continue;
              /* TERMINAL-TYPE option (end)*/
              }
-@@ -292,13 +299,15 @@
+@@ -292,13 +300,15 @@
      // synchronized(__client) critical sections are to protect against
      // TelnetOutputStream writing through the telnet client at same time
      // as a processDo/Will/etc. command invoked from TelnetInputStream
@@ -122,7 +130,7 @@ Index: TelnetInputStream.java
              while (__bytesAvailable >= __queue.length - 1)
              {
                  // The queue is full. We need to wait before adding any more data to it. Hopefully the stream owner
-@@ -335,6 +344,7 @@
+@@ -335,6 +345,7 @@
              if (++__queueTail >= __queue.length)
                  __queueTail = 0;
          }
@@ -130,7 +138,7 @@ Index: TelnetInputStream.java
      }
  
      @Override
-@@ -607,15 +617,21 @@
+@@ -607,15 +618,21 @@
                      break _outerLoop;
                  }
  
