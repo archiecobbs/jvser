@@ -287,6 +287,7 @@
         <attribute name="title" default="Java Class Library API"/>
         <element name="links" optional="yes"/>
         <element name="excludes" optional="yes"/>
+        <element name="additional-classpath" optional="yes"/>
         <sequential>
             <antcontrib:outofdate>
                 <sourcefiles>
@@ -304,6 +305,7 @@
                       windowtitle="@{title}" doctitle="@{title}" failonerror="true">
                         <classpath>
                             <path refid="javac.classpath"/>
+                            <additional-classpath/>
                         </classpath>
                         <packageset dir="src/java" defaultexcludes="yes">
                             <include name="**/*"/>
