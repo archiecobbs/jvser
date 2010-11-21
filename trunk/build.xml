@@ -109,8 +109,11 @@
     </macrodef>
 
     <!-- Build Javadocs -->
-    <target name="javadoc" depends="javac.classpath">
+    <target name="javadoc" depends="javac">
         <dellroad:javadoc>
+            <additional-classpath>
+                <pathelement path="build/classes"/>
+            </additional-classpath>
             <links>
                 <link href="http://download.oracle.com/javase/6/docs/api/"/>
                 <link href="http://download.oracle.com/docs/cd/E17802_01/products/products/javacomm/reference/api/"/>
