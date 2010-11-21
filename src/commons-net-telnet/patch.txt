@@ -1,6 +1,6 @@
 Index: InvalidTelnetOptionException.java
 ===================================================================
---- InvalidTelnetOptionException.java	(revision 1037080)
+--- InvalidTelnetOptionException.java	(revision 1037076)
 +++ InvalidTelnetOptionException.java	(working copy)
 @@ -24,6 +24,7 @@
   * <p>
@@ -64,7 +64,7 @@ Added: svn:eol-style
 
 Index: TelnetInputStream.java
 ===================================================================
---- TelnetInputStream.java	(revision 1037080)
+--- TelnetInputStream.java	(revision 1037076)
 +++ TelnetInputStream.java	(working copy)
 @@ -122,6 +122,7 @@
       * or -1 (EOF) if end of stread reached,
@@ -138,7 +138,32 @@ Index: TelnetInputStream.java
      }
  
      @Override
-@@ -607,15 +618,21 @@
+@@ -446,11 +457,11 @@
+ 
+                     --__bytesAvailable;
+ 
+-            // Need to explicitly notify() so available() works properly
+-            if(__bytesAvailable == 0 && __threaded) {
+-                __queue.notify();
+-            }
+-            
++                    // Need to explicitly notify() so available() works properly
++                    if(__bytesAvailable == 0 && __threaded) {
++                        __queue.notify();
++                    }
++
+                     return ch;
+                 }
+             }
+@@ -566,6 +577,7 @@
+         __threaded = false;
+     }
+ 
++    @Override
+     public void run()
+     {
+         int ch;
+@@ -607,15 +619,21 @@
                      break _outerLoop;
                  }
  
@@ -161,9 +186,17 @@ Index: TelnetInputStream.java
              }
          }
          catch (IOException ioe)
+@@ -623,6 +641,7 @@
+             synchronized (__queue)
+             {
+                 __ioException = ioe;
++                __client.notifyInputListener();
+             }
+         }
+ 
 Index: TelnetClient.java
 ===================================================================
---- TelnetClient.java	(revision 1037080)
+--- TelnetClient.java	(revision 1037076)
 +++ TelnetClient.java	(working copy)
 @@ -53,6 +53,7 @@
      private InputStream __input;
@@ -290,7 +323,7 @@ Index: TelnetClient.java
  }
 Index: Telnet.java
 ===================================================================
---- Telnet.java	(revision 1037080)
+--- Telnet.java	(revision 1037076)
 +++ Telnet.java	(working copy)
 @@ -790,12 +790,25 @@
          }
