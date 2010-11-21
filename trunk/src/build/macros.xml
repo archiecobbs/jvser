@@ -553,7 +553,7 @@
         <antcontrib:if>
             <available file="src/java" type="dir"/>
             <antcontrib:then>
-                <antcall target="checkstyle" inheritRefs="true"/>
+                <!-- <antcall target="checkstyle" inheritRefs="true"/> -->
             </antcontrib:then>
         </antcontrib:if>
         <antcontrib:if>
