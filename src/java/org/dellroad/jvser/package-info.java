@@ -1,6 +1,6 @@
 
 /*
- * Copyright (C) 2010 Archie L Cobbs. All rights reserved.
+ * Copyright (C) 2010 Archie L. Cobbs. All rights reserved.
  *
  * $Id$
  */
