@@ -99,15 +99,6 @@
         <property name="jars.completed" value="true"/>
     </target>
 
-    <!-- Macro to build the JARs for a single module -->
-    <macrodef uri="urn:org.dellroad.ant" name="jars">
-        <attribute name="name" description="Binding module name"/>
-        <attribute name="packagedir" description="Java package subdirectory"/>
-        <sequential>
-
-        </sequential>
-    </macrodef>
-
     <!-- Build Javadocs -->
     <target name="javadoc" depends="javac">
         <dellroad:javadoc>
