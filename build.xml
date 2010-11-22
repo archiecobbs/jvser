@@ -95,6 +95,7 @@
         <mkdir dir="build/dist"/>
         <jar destfile="build/dist/${ant.project.name}-${full.version}.jar">
             <fileset dir="build/classes"/>
+            <fileset dir="build/resources"/>
             <fileset dir="src/java" includes="**/*.xml"/>
             <fileset dir="src/xml" includes="log4j.xml"/>
             <manifest>
