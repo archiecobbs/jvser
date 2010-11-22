@@ -9,19 +9,26 @@ package org.dellroad.jvser.client;
 
 import java.net.InetAddress;
 
+import javax.comm.SerialPort;
+import javax.comm.SerialPortEvent;
+import javax.comm.SerialPortEventListener;
+
 import org.dellroad.jvser.TelnetSerialPort;
 
 /**
  * Command line client.
  */
-public final class Main extends MainClass {
+public final class Main extends MainClass implements SerialPortEventListener {
 
     private InetAddress host;
     private int port;
-    private int baudRate = TelnetSerialPort.DEFAULT_BAUD_RATE;
-    private int flowControl = SerialPort.FLOWCONTROW_RTSCTS_IN | SerialPort.FLOWCONTROW_RTSCTS_OUT;
-    %%
     private boolean verbose;
+
+    private int baudRate = TelnetSerialPort.DEFAULT_BAUD_RATE;
+    private int dataBits = SerialPort.DATABITS_8;
+    private int stopBits = SerialPort.STOPBITS_1;
+    private int parity = SerialPort.PARITY_NONE;
+    private int flowControl = SerialPort.FLOWCONTROW_NONE_IN | SerialPort.FLOWCONTROW_NONE_OUT;
 
     private Main() {
     }
@@ -71,10 +78,9 @@ public final class Main extends MainClass {
         if (verbose)
             log.info("connecting to " + this.host + ":" + this.port);
         TelnetSerialPort port = new TelnetSerialPort(this.host, this.port);
-        port.setSignature("jvser client");
-        port.setSerialPortParams(this.baudRate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+        port.setSerialPortParams(this.baudRate, this.dataBits, this.stopBits, this.parity);
+        port.setFlowControlMode(this.flowControl);
         port.setDTR(true);
-        port.setFlowControlMode(SerialPort.FLOWCONTROW_RTSCTS_IN | );
         //...
 
         // Done
