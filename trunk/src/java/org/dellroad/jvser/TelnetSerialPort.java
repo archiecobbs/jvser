@@ -190,11 +190,6 @@ public class TelnetSerialPort extends SerialPort {
         TelnetClient tc = new TelnetClient(DEFAULT_TERMINAL_TYPE);
         tc.setReaderThread(true);                                   // allows immediate option negotiation
         try {
-            tc.setTcpNoDelay(true);
-        } catch (IOException e) {
-            log.warn("unable to set TCP_NODELAY option on telnet socket", e);
-        }
-        try {
             tc.addOptionHandler(new TerminalTypeOptionHandler(DEFAULT_TERMINAL_TYPE, false, false, true, false));
             tc.addOptionHandler(new EchoOptionHandler(true, false, true, false));
             tc.addOptionHandler(new SuppressGAOptionHandler(true, true, true, true));
