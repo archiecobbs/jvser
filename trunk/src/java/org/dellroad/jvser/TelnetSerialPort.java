@@ -98,7 +98,7 @@ public class TelnetSerialPort extends SerialPort {
     private final TelnetClient telnetClient;
 
     private String name;
-    private String signature = getClass().getName();
+    private String signature;
     private State state;
     private SerialPortEventListener listener;
 
@@ -133,6 +133,7 @@ public class TelnetSerialPort extends SerialPort {
     public TelnetSerialPort(InetAddress host, int port) throws IOException {
         this.state = State.INITIAL;
         this.name = getClass().getSimpleName() + "[" + host.getHostAddress() + ":" + port + "]";
+        this.signature = "jvser v" + Version.JVSER_VERSION;
         this.telnetClient = this.createTelnetClient();
         this.telnetClient.registerInputListener(new TelnetInputListener() {
 
