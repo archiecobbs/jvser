@@ -28,7 +28,7 @@ public class ModemStateMaskCommand extends ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[1]} is not {@link RFC2217#SET_MODEMSTATE_MASK} (client or server)
      */
     public ModemStateMaskCommand(int[] bytes) {
-        super(bytes, SET_MODEMSTATE_MASK);
+        super("SET-MODEMSTATE-MASK", SET_MODEMSTATE_MASK, bytes);
         this.modemStateMask = bytes[2];
     }
 
@@ -44,11 +44,6 @@ public class ModemStateMaskCommand extends ComPortCommand {
             client ? SET_MODEMSTATE_MASK : SET_MODEMSTATE_MASK + SERVER_OFFSET,
             modemStateMask
         });
-    }
-
-    @Override
-    public String getName() {
-        return "SET-MODEMSTATE-MASK";
     }
 
     @Override

@@ -29,7 +29,7 @@ public class DataSizeCommand extends ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[2]} is not a valid RFC 2217 data size value
      */
     public DataSizeCommand(int[] bytes) {
-        super(bytes, SET_DATASIZE);
+        super("SET-DATASIZE", SET_DATASIZE, bytes);
         this.dataSize = bytes[2];
         switch (this.dataSize) {
         case DATASIZE_REQUEST:
@@ -56,11 +56,6 @@ public class DataSizeCommand extends ComPortCommand {
             client ? SET_DATASIZE : SET_DATASIZE + SERVER_OFFSET,
             dataSize
         });
-    }
-
-    @Override
-    public String getName() {
-        return "SET-DATASIZE";
     }
 
     @Override

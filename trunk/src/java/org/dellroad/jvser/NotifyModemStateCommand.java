@@ -28,7 +28,7 @@ public class NotifyModemStateCommand extends ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[1]} is not {@link RFC2217#NOTIFY_MODEMSTATE} (client or server)
      */
     public NotifyModemStateCommand(int[] bytes) {
-        super(bytes, NOTIFY_MODEMSTATE);
+        super("NOTIFY-MODEMSTATE", NOTIFY_MODEMSTATE, bytes);
         this.modemState = bytes[2];
     }
 
@@ -44,11 +44,6 @@ public class NotifyModemStateCommand extends ComPortCommand {
             client ? NOTIFY_MODEMSTATE : NOTIFY_MODEMSTATE + SERVER_OFFSET,
             modemState
         });
-    }
-
-    @Override
-    public String getName() {
-        return "NOTIFY-MODEMSTATE";
     }
 
     @Override

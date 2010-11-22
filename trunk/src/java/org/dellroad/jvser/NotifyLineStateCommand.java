@@ -28,7 +28,7 @@ public class NotifyLineStateCommand extends ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[1]} is not {@link RFC2217#NOTIFY_LINESTATE} (client or server)
      */
     public NotifyLineStateCommand(int[] bytes) {
-        super(bytes, NOTIFY_LINESTATE);
+        super("NOTIFY-LINESTATE", NOTIFY_LINESTATE, bytes);
         this.lineState = bytes[2];
     }
 
@@ -44,11 +44,6 @@ public class NotifyLineStateCommand extends ComPortCommand {
             client ? NOTIFY_LINESTATE : NOTIFY_LINESTATE + SERVER_OFFSET,
             lineState
         });
-    }
-
-    @Override
-    public String getName() {
-        return "NOTIFY-LINESTATE";
     }
 
     @Override

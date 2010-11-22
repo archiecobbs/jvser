@@ -29,7 +29,7 @@ public class StopSizeCommand extends ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[2]} is not a valid RFC 2217 stop size value
      */
     public StopSizeCommand(int[] bytes) {
-        super(bytes, SET_STOPSIZE);
+        super("SET-STOPSIZE", SET_STOPSIZE, bytes);
         this.stopSize = bytes[2];
         switch (this.stopSize) {
         case STOPSIZE_REQUEST:
@@ -55,11 +55,6 @@ public class StopSizeCommand extends ComPortCommand {
             client ? SET_STOPSIZE : SET_STOPSIZE + SERVER_OFFSET,
             stopSize
         });
-    }
-
-    @Override
-    public String getName() {
-        return "SET-STOPSIZE";
     }
 
     @Override

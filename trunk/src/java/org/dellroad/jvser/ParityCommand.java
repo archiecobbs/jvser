@@ -29,7 +29,7 @@ public class ParityCommand extends ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[2]} is not a valid RFC 2217 parity value
      */
     public ParityCommand(int[] bytes) {
-        super(bytes, SET_PARITY);
+        super("SET-PARITY", SET_PARITY, bytes);
         this.parity = bytes[2];
         switch (this.parity) {
         case PARITY_REQUEST:
@@ -57,11 +57,6 @@ public class ParityCommand extends ComPortCommand {
             client ? SET_PARITY : SET_PARITY + SERVER_OFFSET,
             parity
         });
-    }
-
-    @Override
-    public String getName() {
-        return "SET-PARITY";
     }
 
     @Override

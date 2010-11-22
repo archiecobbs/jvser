@@ -28,7 +28,7 @@ public class BaudRateCommand extends ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[1]} is not {@link RFC2217#SET_BAUDRATE} (client or server)
      */
     public BaudRateCommand(int[] bytes) {
-        super(bytes, SET_BAUDRATE);
+        super("SET-BAUDRATE", SET_BAUDRATE, bytes);
         this.baudRate = ((bytes[2] & 0xff) << 24) | ((bytes[3] & 0xff) << 16) | ((bytes[4] & 0xff) << 8) | (bytes[5] & 0xff);
     }
 
@@ -47,11 +47,6 @@ public class BaudRateCommand extends ComPortCommand {
             (baudRate >> 8) & 0xff,
             baudRate & 0xff,
         });
-    }
-
-    @Override
-    public String getName() {
-        return "SET-BAUDRATE";
     }
 
     @Override

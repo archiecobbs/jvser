@@ -26,7 +26,7 @@ public class FlowControlSuspendCommand extends ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[1]} is not {@link RFC2217#FLOWCONTROL_SUSPEND} (client or server)
      */
     public FlowControlSuspendCommand(int[] bytes) {
-        super(bytes, FLOWCONTROL_SUSPEND);
+        super("FLOWCONTROL-SUSPEND", FLOWCONTROL_SUSPEND, bytes);
     }
 
     /**
@@ -39,11 +39,6 @@ public class FlowControlSuspendCommand extends ComPortCommand {
             COM_PORT_OPTION,
             client ? FLOWCONTROL_SUSPEND : FLOWCONTROL_SUSPEND + SERVER_OFFSET,
         });
-    }
-
-    @Override
-    public String getName() {
-        return "FLOWCONTROL-SUSPEND";
     }
 
     @Override
