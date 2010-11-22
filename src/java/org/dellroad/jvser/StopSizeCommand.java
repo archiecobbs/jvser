@@ -95,12 +95,12 @@ public class StopSizeCommand extends ComPortCommand {
     }
 
     @Override
-    int getMinLength() {
+    int getMinPayloadLength() {
         return 1;
     }
 
     @Override
-    int getMaxLength() {
+    int getMaxPayloadLength() {
         return 1;
     }
 }

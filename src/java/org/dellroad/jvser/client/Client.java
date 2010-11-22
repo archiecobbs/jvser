@@ -25,9 +25,9 @@ import org.dellroad.jvser.TelnetSerialPort;
  */
 public class Client implements SerialPortEventListener {
 
-    protected final Logger log = Logger.getLogger(getClass());
-
     private static final String DATA_ENCODING = "ISO-8859-1";
+
+    protected final Logger log = Logger.getLogger(getClass());
 
     private final InetAddress host;
     private final int tcpPort;
@@ -109,7 +109,7 @@ public class Client implements SerialPortEventListener {
                 String[] cmd = line.substring(1).trim().split("\\s");
                 if (cmd.length == 0 || cmd[0].length() == 0)
                     continue;
-                if (cmd[0].equals("!close")) {
+                if (cmd[0].equals("close")) {
                     this.done = true;
                     continue;
                 }
@@ -149,7 +149,7 @@ public class Client implements SerialPortEventListener {
                 this.flowControl = SerialPort.FLOWCONTROL_NONE;
             else if (cmd[1].equals("xonoff"))
                 this.flowControl = SerialPort.FLOWCONTROL_XONXOFF_IN | SerialPort.FLOWCONTROL_XONXOFF_OUT;
-            else if (cmd[1].equals("hardware") || cmd[2].equals("hw"))
+            else if (cmd[1].equals("hardware") || cmd[1].equals("hw"))
                 this.flowControl = SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT;
             else {
                 log.error("invalid flow control `" + cmd[1] + "': should be `none', `xonoff', or `hardware'");
@@ -188,13 +188,17 @@ public class Client implements SerialPortEventListener {
         try {
             r = this.port.getInputStream().read(buf);
         } catch (IOException e) {
-            log.error("exception while reading: " + e);
-            this.done = true;
+            if (!this.done) {
+                log.error("exception while reading: " + e);
+                this.done = true;
+            }
             return;
         }
         if (r == -1) {
-            log.error("read EOF from stream");
-            this.done = true;
+            if (!this.done) {
+                log.error("read EOF from stream");
+                this.done = true;
+            }
             return;
         }
         char[] cbuf = new char[r];

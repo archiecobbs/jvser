@@ -69,12 +69,12 @@ public class BaudRateCommand extends ComPortCommand {
     }
 
     @Override
-    int getMinLength() {
+    int getMinPayloadLength() {
         return 4;
     }
 
     @Override
-    int getMaxLength() {
+    int getMaxPayloadLength() {
         return 4;
     }
 }

@@ -30,10 +30,10 @@ public abstract class ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[1]} is not {@code command} (either client or server version)
      */
     protected ComPortCommand(int[] bytes, int command) {
-        if (bytes.length < this.getMinLength() || bytes.length > this.getMaxLength()) {
-            throw new IllegalArgumentException("length = " + bytes.length + " is not in the range "
-              + this.getMinLength() + ".." + this.getMaxLength());
-        }
+        int minLength = 2 + this.getMinPayloadLength();
+        int maxLength = 2 + this.getMaxPayloadLength();
+        if (bytes.length < minLength || bytes.length > maxLength)
+            throw new IllegalArgumentException("length = " + bytes.length + " is not in the range " + minLength + ".." + maxLength);
         this.bytes = bytes;
         if (this.bytes[0] != COM_PORT_OPTION)
             throw new IllegalArgumentException("not a COM-PORT-OPTION");
@@ -98,11 +98,11 @@ public abstract class ComPortCommand {
     /**
      * Get minimum required length of the payload of this option.
      */
-    abstract int getMinLength();
+    abstract int getMinPayloadLength();
 
     /**
      * Get maximum required length of the payload of this option.
      */
-    abstract int getMaxLength();
+    abstract int getMaxPayloadLength();
 }
 
