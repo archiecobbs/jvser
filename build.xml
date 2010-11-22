@@ -113,7 +113,15 @@
 
     <!-- Build Javadocs -->
     <target name="javadoc" depends="javac">
-        <dellroad:javadoc>
+        <delete dir="build/javadoc"/>
+        <mkdir dir="build/javadoc"/>
+        <copy todir="build/javadoc">
+            <fileset dir="src/java/org/dellroad/jvser" includes="overview.html"/>
+            <filterset>
+                <filter token="VERSION" value="${full.version}"/>
+            </filterset>
+        </copy>
+        <dellroad:javadoc overview="build/javadoc/overview.html">
             <additional-classpath>
                 <pathelement path="build/classes"/>
             </additional-classpath>

@@ -285,6 +285,7 @@
     -->
     <macrodef uri="urn:org.dellroad.ant" name="javadoc">
         <attribute name="title" default="Java Class Library API"/>
+        <attribute name="overview"/>
         <element name="links" optional="yes"/>
         <element name="excludes" optional="yes"/>
         <element name="additional-classpath" optional="yes"/>
@@ -300,7 +301,7 @@
                 <sequential>
                     <delete dir="build/reports/javadoc"/>
                     <mkdir dir="build/reports/javadoc"/>
-                    <javadoc destdir="build/reports/javadoc" use="true"
+                    <javadoc destdir="build/reports/javadoc" use="true" overview="@{overview}"
                       source="1.5" breakiterator="yes" linksource="true"
                       windowtitle="@{title}" doctitle="@{title}" failonerror="true">
                         <classpath>
