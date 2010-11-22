@@ -36,7 +36,7 @@ public class BaudRateCommand extends ComPortCommand {
      * Encoding constructor.
      *
      * @param baudRate baud rate
-     * @param client true for the client command, false for the server command
+     * @param client true for the client-to-server command, false for the server-to-client command
      */
     public BaudRateCommand(boolean client, int baudRate) {
         this(new int[] {

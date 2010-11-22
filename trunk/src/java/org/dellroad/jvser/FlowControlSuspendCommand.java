@@ -32,7 +32,7 @@ public class FlowControlSuspendCommand extends ComPortCommand {
     /**
      * Encoding constructor.
      *
-     * @param client true for the client command, false for the server command
+     * @param client true for the client-to-server command, false for the server-to-client command
      */
     public FlowControlSuspendCommand(boolean client) {
         this(new int[] {

@@ -10,7 +10,7 @@ package org.dellroad.jvser;
 import org.dellroad.jvser.telnet.TelnetOptionHandler;
 
 /**
- * RFC 856 telnet TRANSMIT-BINARY option.
+ * Handler for the telnet {@code TRANSMIT-BINARY} option defined by RFC 856.
  *
  * @see <a href="http://tools.ietf.org/html/rfc856">RFC 856</a>
  */

@@ -47,7 +47,7 @@ public class DataSizeCommand extends ComPortCommand {
      * Encoding constructor.
      *
      * @param dataSize data size value
-     * @param client true for the client command, false for the server command
+     * @param client true for the client-to-server command, false for the server-to-client command
      * @throws IllegalArgumentException if {@code dataSize} is not a valid RFC 2217 data size value
      */
     public DataSizeCommand(boolean client, int dataSize) {

@@ -62,7 +62,7 @@ public class ControlCommand extends ComPortCommand {
      * Encoding constructor.
      *
      * @param command control command
-     * @param client true for the client command, false for the server command
+     * @param client true for the client-to-server command, false for the server-to-client command
      * @throws IllegalArgumentException if {@code command} is not a valid RFC 2217 control value
      */
     public ControlCommand(boolean client, int command) {

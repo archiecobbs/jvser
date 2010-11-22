@@ -36,7 +36,7 @@ public class NotifyLineStateCommand extends ComPortCommand {
      * Encoding constructor.
      *
      * @param lineState line state value
-     * @param client true for the client command, false for the server command
+     * @param client true for the client-to-server command, false for the server-to-client command
      */
     public NotifyLineStateCommand(boolean client, int lineState) {
         this(new int[] {
