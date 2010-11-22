@@ -7,6 +7,7 @@
 
 package org.dellroad.jvser.client;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
@@ -38,6 +39,13 @@ public abstract class MainClass {
     protected void usageError() {
         usageMessage();
         System.exit(1);
+    }
+
+    /**
+     * Configure logging level.
+     */
+    protected void setLogLevel(Level logLevel) {
+        Logger.getRootLogger().setLevel(logLevel);
     }
 
     /**
