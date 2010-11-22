@@ -75,6 +75,11 @@ public class Client implements SerialPortEventListener {
         // Connect port
         log.info("connecting to " + this.host + ":" + this.tcpPort);
         this.port.getTelnetClient().connect(this.host, this.tcpPort);
+        try {
+            this.port.getTelnetClient().setTcpNoDelay(true);
+        } catch (IOException e) {
+            log.warn("unable to set TCP_NODELAY option on telnet socket", e);
+        }
 
         // Spawn reader thread if needed
         if (this.useThread) {
