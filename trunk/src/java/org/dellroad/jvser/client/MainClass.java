@@ -7,8 +7,10 @@
 
 package org.dellroad.jvser.client;
 
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 
 /**
  * Support superclass for command line classes.
@@ -42,9 +44,14 @@ public abstract class MainClass {
     }
 
     /**
-     * Configure logging level.
+     * Setup logging.
      */
-    protected void setLogLevel(Level logLevel) {
+    protected void setupLogging(Level logLevel) {
+        if (logLevel == null)
+            logLevel = Level.INFO;
+        ConsoleAppender consoleAppender = new ConsoleAppender(new PatternLayout("%p: %m%n"), ConsoleAppender.SYSTEM_ERR);
+        Logger.getRootLogger().removeAllAppenders();
+        Logger.getRootLogger().addAppender(consoleAppender);
         Logger.getRootLogger().setLevel(logLevel);
     }
 

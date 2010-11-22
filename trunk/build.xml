@@ -98,7 +98,6 @@
             <fileset dir="build/classes"/>
             <fileset dir="build/resources"/>
             <fileset dir="src/java" includes="**/*.xml"/>
-            <fileset dir="src/xml" includes="log4j.xml"/>
             <manifest>
                 <attribute name="Main-Class" value="org.dellroad.jvser.client.Main"/>
             </manifest>
