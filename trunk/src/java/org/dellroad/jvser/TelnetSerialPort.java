@@ -124,15 +124,11 @@ public class TelnetSerialPort extends SerialPort {
     private int modemStateLast;                                 // most recent modem state rec'd from access server
 
     /**
-     * Constructor. This initializes the telnet client and creates the local socket but does not connect it.
-     *
-     * @param host host to connect to
-     * @param port TCP port
-     * @throws IllegalArgumentException if port is not between 1 and 65535
+     * Constructor.
      */
-    public TelnetSerialPort(InetAddress host, int port) throws IOException {
+    public TelnetSerialPort() {
         this.state = State.INITIAL;
-        this.name = getClass().getSimpleName() + "[" + host.getHostAddress() + ":" + port + "]";
+        this.name = getClass().getSimpleName();
         this.signature = "jvser v" + Version.JVSER_VERSION;
         this.telnetClient = this.createTelnetClient();
         this.telnetClient.registerInputListener(new TelnetInputListener() {
@@ -190,10 +186,14 @@ public class TelnetSerialPort extends SerialPort {
     /**
      * Construct and configure the {@link TelnetClient} to be used for this instance.
      */
-    protected TelnetClient createTelnetClient() throws IOException {
+    protected TelnetClient createTelnetClient() {
         TelnetClient tc = new TelnetClient(DEFAULT_TERMINAL_TYPE);
         tc.setReaderThread(true);                                   // allows immediate option negotiation
-        tc.setTcpNoDelay(true);
+        try {
+            tc.setTcpNoDelay(true);
+        } catch (IOException e) {
+            log.warn("unable to set TCP_NODELAY option on telnet socket", e);
+        }
         try {
             tc.addOptionHandler(new TerminalTypeOptionHandler(DEFAULT_TERMINAL_TYPE, false, false, true, false));
             tc.addOptionHandler(new EchoOptionHandler(true, false, true, false));
