@@ -42,4 +42,7 @@ public final class Version {
         }
         JVSER_VERSION = properties.getProperty(VERSION_PROPERTY_NAME, "?");
     }
+
+    private Version() {
+    }
 }
