@@ -39,7 +39,7 @@ public class Client implements SerialPortEventListener {
     private TelnetSerialPort port;
     private boolean done;
 
-    private int baudRate = TelnetSerialPort.DEFAULT_BAUD_RATE;
+    private int baudRate = 9600;
     private int dataBits = SerialPort.DATABITS_8;
     private int stopBits = SerialPort.STOPBITS_1;
     private int parity = SerialPort.PARITY_NONE;
