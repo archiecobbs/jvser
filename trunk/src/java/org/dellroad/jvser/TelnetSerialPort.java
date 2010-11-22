@@ -226,16 +226,6 @@ public class TelnetSerialPort extends SerialPort {
         } catch (IOException e) {
             log.debug(this.name + ": exception closing TelnetClient (ignoring)", e);
         }
-        try {
-            this.telnetClient.getInputStream().close();
-        } catch (IOException e) {
-            // ignore
-        }
-        try {
-            this.telnetClient.getOutputStream().close();
-        } catch (IOException e) {
-            // ignore
-        }
     }
 
     @Override
@@ -543,12 +533,19 @@ public class TelnetSerialPort extends SerialPort {
     // This is invoked by the ComPortOptionHandler when we receive a command from the server
 
     void handleCommand(ComPortCommand command) {
-        // Question: should we verify command.isServerCommand() ?
+
+        // Incoming commands should be server versions
+        if (!command.isServerCommand()) {
+            log.warn(TelnetSerialPort.this.name + ": rec'd " + command + " (ignoring unexpected client command)");
+            return;
+        }
+
+        // Handle command
         command.visit(new AbstractComPortCommandSwitch() {
 
             @Override
             public void caseBaudRate(BaudRateCommand command) {
-                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
+                log.debug(TelnetSerialPort.this.name + ": rec'd " + command);
                 synchronized (TelnetSerialPort.this) {
                     TelnetSerialPort.this.baudRate = command.getBaudRate();
                 }
@@ -556,7 +553,7 @@ public class TelnetSerialPort extends SerialPort {
 
             @Override
             public void caseDataSize(DataSizeCommand command) {
-                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
+                log.debug(TelnetSerialPort.this.name + ": rec'd " + command);
                 synchronized (TelnetSerialPort.this) {
                     TelnetSerialPort.this.dataSize = command.getDataSize();
                 }
@@ -564,7 +561,7 @@ public class TelnetSerialPort extends SerialPort {
 
             @Override
             public void caseParity(ParityCommand command) {
-                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
+                log.debug(TelnetSerialPort.this.name + ": rec'd " + command);
                 synchronized (TelnetSerialPort.this) {
                     TelnetSerialPort.this.parity = command.getParity();
                 }
@@ -572,7 +569,7 @@ public class TelnetSerialPort extends SerialPort {
 
             @Override
             public void caseStopSize(StopSizeCommand command) {
-                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
+                log.debug(TelnetSerialPort.this.name + ": rec'd " + command);
                 synchronized (TelnetSerialPort.this) {
                     TelnetSerialPort.this.stopSize = command.getStopSize();
                 }
@@ -580,33 +577,38 @@ public class TelnetSerialPort extends SerialPort {
 
             @Override
             public void caseControl(ControlCommand command) {
-                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
                 synchronized (TelnetSerialPort.this) {
                     switch (command.getControl()) {
                     case CONTROL_OUTBOUND_FLOW_NONE:
                     case CONTROL_OUTBOUND_FLOW_XON_XOFF:
                     case CONTROL_OUTBOUND_FLOW_HARDWARE:
+                        log.debug(TelnetSerialPort.this.name + ": rec'd " + command);
                         TelnetSerialPort.this.flowControlOutbound = command.getControl();
                         break;
                     case CONTROL_INBOUND_FLOW_NONE:
                     case CONTROL_INBOUND_FLOW_XON_XOFF:
                     case CONTROL_INBOUND_FLOW_HARDWARE:
+                        log.debug(TelnetSerialPort.this.name + ": rec'd " + command);
                         TelnetSerialPort.this.flowControlInbound = command.getControl();
                         break;
                     case CONTROL_DTR_ON:
+                        log.debug(TelnetSerialPort.this.name + ": rec'd " + command);
                         TelnetSerialPort.this.dtr = true;
                         break;
                     case CONTROL_DTR_OFF:
+                        log.debug(TelnetSerialPort.this.name + ": rec'd " + command);
                         TelnetSerialPort.this.dtr = false;
                         break;
                     case CONTROL_RTS_ON:
+                        log.debug(TelnetSerialPort.this.name + ": rec'd " + command);
                         TelnetSerialPort.this.rts = true;
                         break;
                     case CONTROL_RTS_OFF:
+                        log.debug(TelnetSerialPort.this.name + ": rec'd " + command);
                         TelnetSerialPort.this.rts = false;
                         break;
                     default:
-                        log.info(TelnetSerialPort.this.name + ": rec'd " + command + " (ignoring)");
+                        log.debug(TelnetSerialPort.this.name + ": rec'd " + command + " (ignoring)");
                         break;
                     }
                 }
@@ -614,7 +616,7 @@ public class TelnetSerialPort extends SerialPort {
 
             @Override
             public void caseNotifyLineState(NotifyLineStateCommand command) {
-                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
+                log.debug(TelnetSerialPort.this.name + ": rec'd " + command);
                 int lineState = command.getLineState();
                 int notify;
                 synchronized (TelnetSerialPort.this) {
@@ -636,7 +638,7 @@ public class TelnetSerialPort extends SerialPort {
 
             @Override
             public void caseNotifyModemState(NotifyModemStateCommand command) {
-                log.info(TelnetSerialPort.this.name + ": rec'd " + command);
+                log.debug(TelnetSerialPort.this.name + ": rec'd " + command);
                 int modemState = command.getModemState();
                 int notify;
                 synchronized (TelnetSerialPort.this) {
@@ -656,7 +658,7 @@ public class TelnetSerialPort extends SerialPort {
 
             @Override
             protected void caseDefault(ComPortCommand command) {
-                log.info(TelnetSerialPort.this.name + ": rec'd " + command + " (ignoring)");
+                log.debug(TelnetSerialPort.this.name + ": rec'd " + command + " (ignoring)");
             }
         });
     }

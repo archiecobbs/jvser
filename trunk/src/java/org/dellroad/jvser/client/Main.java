@@ -9,16 +9,14 @@ package org.dellroad.jvser.client;
 
 import java.net.InetAddress;
 
+import org.apache.log4j.Level;
+
 /**
  * Launcher for the command line client.
  *
  * @see Client
  */
 public final class Main extends MainClass {
-
-    private InetAddress host;
-    private int port;
-    private boolean useThread;
 
     private Main() {
     }
@@ -34,8 +32,11 @@ public final class Main extends MainClass {
     protected int run(String[] args) throws Exception {
 
         // Parse initial command line flags
-        String resource = null;
-        String expr = null;
+        InetAddress host = null;
+        int port = -1;
+        boolean useThread = true;
+        boolean debug = false;
+        boolean logInput = false;
         int i;
         for (i = 0; i < args.length; i++) {
             if (!args[i].startsWith("-"))
@@ -44,24 +45,33 @@ public final class Main extends MainClass {
                 i++;
                 break;
             }
-            if (args[i].equals("-t")) {
-                this.useThread = true;
+            if (args[i].equals("-d")) {
+                if (debug)
+                    logInput = true;
+                debug = true;
+                continue;
+            }
+            if (args[i].equals("-n")) {
+                useThread = false;
                 continue;
             }
             usageError();
         }
         switch (args.length - i) {
         case 2:
-            this.host = InetAddress.getByName(args[i]);
-            this.port = Integer.parseInt(args[i + 1]);
+            host = InetAddress.getByName(args[i]);
+            port = Integer.parseInt(args[i + 1]);
             break;
         default:
             usageError();
             break;
         }
 
+        // Configure logging
+        setLogLevel(debug ? Level.DEBUG : Level.INFO);
+
         // Start client
-        new Client(this.host, this.port, this.useThread).run();
+        new Client(host, port, useThread, logInput).run();
 
         // Done
         return 0;
@@ -69,7 +79,7 @@ public final class Main extends MainClass {
 
     @Override
     protected void usageMessage() {
-        System.err.println("Usage: java " + Main.class.getName() + " host port");
+        System.err.println("Usage: java " + Main.class.getName() + " [-n] [-d] host port");
     }
 }
 

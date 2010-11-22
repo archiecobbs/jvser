@@ -11,6 +11,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.comm.SerialPort;
 import javax.comm.SerialPortEvent;
@@ -32,6 +34,7 @@ public class Client implements SerialPortEventListener {
     private final InetAddress host;
     private final int tcpPort;
     private final boolean useThread;
+    private final boolean logInput;
 
     private TelnetSerialPort port;
     private boolean done;
@@ -44,10 +47,11 @@ public class Client implements SerialPortEventListener {
     private boolean dtr;
     private boolean rts;
 
-    public Client(InetAddress host, int tcpPort, boolean useThread) {
+    public Client(InetAddress host, int tcpPort, boolean useThread, boolean logInput) {
         this.host = host;
         this.tcpPort = tcpPort;
         this.useThread = useThread;
+        this.logInput = logInput;
     }
 
     public void run() throws Exception {
@@ -75,11 +79,8 @@ public class Client implements SerialPortEventListener {
         // Connect port
         log.info("connecting to " + this.host + ":" + this.tcpPort);
         this.port.getTelnetClient().connect(this.host, this.tcpPort);
-        try {
-            this.port.getTelnetClient().setTcpNoDelay(true);
-        } catch (IOException e) {
-            log.warn("unable to set TCP_NODELAY option on telnet socket", e);
-        }
+        this.port.getTelnetClient().setTcpNoDelay(true);
+        //this.port.getTelnetClient().setKeepAlive(true);
 
         // Spawn reader thread if needed
         if (this.useThread) {
@@ -96,7 +97,7 @@ public class Client implements SerialPortEventListener {
         }
 
         // Main loop
-        log.info("available commands: !break !speed !flow !rts !dtr !close");
+        log.info("available commands: !break !speed !geom !flow !rts !dtr !close");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, DATA_ENCODING));
         while (!this.done) {
 
@@ -143,11 +144,62 @@ public class Client implements SerialPortEventListener {
             this.port.setSerialPortParams(this.baudRate, this.dataBits, this.stopBits, this.parity);
             return;
         }
+        if (cmd[0].equals("geom") && cmd.length == 2) {
+            Matcher matcher = Pattern.compile("([5678])([NEOMS])(1|2|1.5)").matcher(cmd[1].toUpperCase());
+            if (!matcher.matches()) {
+                log.error("invalid geometry `" + cmd[1] + "'");
+                return;
+            }
+            switch (Integer.parseInt(matcher.group(1))) {
+            case 5:
+                this.dataBits = SerialPort.DATABITS_5;
+                break;
+            case 6:
+                this.dataBits = SerialPort.DATABITS_6;
+                break;
+            case 7:
+                this.dataBits = SerialPort.DATABITS_7;
+                break;
+            case 8:
+                this.dataBits = SerialPort.DATABITS_8;
+                break;
+            default:
+                break;
+            }
+            switch (matcher.group(2).charAt(0)) {
+            case 'N':
+                this.parity = SerialPort.PARITY_NONE;
+                break;
+            case 'E':
+                this.parity = SerialPort.PARITY_EVEN;
+                break;
+            case 'O':
+                this.parity = SerialPort.PARITY_ODD;
+                break;
+            case 'M':
+                this.parity = SerialPort.PARITY_MARK;
+                break;
+            case 'S':
+                this.parity = SerialPort.PARITY_SPACE;
+                break;
+            default:
+                break;
+            }
+            if (matcher.group(3).equals("1"))
+                this.stopBits = SerialPort.STOPBITS_1;
+            else if (matcher.group(3).equals("2"))
+                this.stopBits = SerialPort.STOPBITS_2;
+            else if (matcher.group(3).equals("1.5"))
+                this.stopBits = SerialPort.STOPBITS_1_5;
+            log.info("setting geometry to " + cmd[1]);
+            this.port.setSerialPortParams(this.baudRate, this.dataBits, this.stopBits, this.parity);
+            return;
+        }
         if (cmd[0].equals("flow") && cmd.length == 2) {
             boolean outbound;
             if (cmd[1].equals("none"))
                 this.flowControl = SerialPort.FLOWCONTROL_NONE;
-            else if (cmd[1].equals("xonoff"))
+            else if (cmd[1].equals("xonxoff"))
                 this.flowControl = SerialPort.FLOWCONTROL_XONXOFF_IN | SerialPort.FLOWCONTROL_XONXOFF_OUT;
             else if (cmd[1].equals("hardware") || cmd[1].equals("hw"))
                 this.flowControl = SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT;
@@ -160,13 +212,13 @@ public class Client implements SerialPortEventListener {
             return;
         }
         if (cmd[0].equals("dtr") && cmd.length == 2) {
-            this.dtr = Boolean.parseBoolean(cmd[1]);
+            this.dtr = cmd[1].equals("1") || Boolean.parseBoolean(cmd[1]);
             log.info("setting DTR to " + (this.dtr ? "1" : "0"));
             this.port.setDTR(this.dtr);
             return;
         }
         if (cmd[0].equals("rts") && cmd.length == 2) {
-            this.rts = Boolean.parseBoolean(cmd[1]);
+            this.rts = cmd[1].equals("1") || Boolean.parseBoolean(cmd[1]);
             log.info("setting RTS to " + (this.rts ? "1" : "0"));
             this.port.setRTS(this.rts);
             return;
@@ -205,8 +257,13 @@ public class Client implements SerialPortEventListener {
         for (int i = 0; i < r; i++)
             cbuf[i] = (char)(buf[i] & 0xff);
         String s = new String(cbuf);
-        s = s.replaceAll("\n", "\\n").replaceAll("\r", "\\r").replaceAll("\t", "\\t");
-        log.info("RECV: [" + s + "]");
+        if (this.logInput) {
+            s = s.replaceAll("\n", "\\n").replaceAll("\r", "\\r").replaceAll("\t", "\\t");
+            log.info("RECV: [" + s + "]");
+        } else {
+            System.out.print(s);
+            System.out.flush();
+        }
     }
 
     public static String decodeSerialEvent(SerialPortEvent event) {
