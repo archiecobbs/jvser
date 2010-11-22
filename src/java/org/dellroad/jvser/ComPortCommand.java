@@ -7,29 +7,36 @@
 
 package org.dellroad.jvser;
 
+import java.util.Arrays;
+
 import static org.dellroad.jvser.RFC2217.*;
 
 /**
- * Superclass for RFC 2217 command classes.
+ * Superclass for RFC 2217 commands.
+ *
+ * <p>
+ * Instances of this class (and all subclasses) are immutable.
+ * </p>
  *
  * @see <a href="http://tools.ietf.org/html/rfc2217">RFC 2217</a>
  */
 public abstract class ComPortCommand {
 
     final String name;
-    final int command;
     final int[] bytes;
 
     /**
      * Constructor.
      *
      * @param name human readable name of this command
-     * @param command required COM-PORT-OPTION option command (client version)
-     * @param bytes encoded option starting with the {@code COM-PORT-OPTION} byte
+     * @param command required {@code COM-PORT-OPTION} command byte value (must be the client-to-server value)
+     * @param bytes encoded command starting with the {@code COM-PORT-OPTION} byte
      * @throws NullPointerException if {@code bytes} is null
      * @throws IllegalArgumentException if {@code bytes} has length that is too short or too long
      * @throws IllegalArgumentException if {@code bytes[0]} is not {@link RFC2217#COM_PORT_OPTION}
-     * @throws IllegalArgumentException if {@code bytes[1]} is not {@code command} (either client or server version)
+     * @throws IllegalArgumentException if {@code command} is greater than or equal to {@link RFC2217#SERVER_OFFSET}
+     * @throws IllegalArgumentException if {@code bytes[1]} is not {@code command}
+     *  or {@code command} + {@link RFC2217#SERVER_OFFSET}
      */
     protected ComPortCommand(String name, int command, int[] bytes) {
         this.name = name;
@@ -37,19 +44,22 @@ public abstract class ComPortCommand {
         int maxLength = 2 + this.getMaxPayloadLength();
         if (bytes.length < minLength || bytes.length > maxLength)
             throw new IllegalArgumentException("length = " + bytes.length + " is not in the range " + minLength + ".." + maxLength);
-        this.bytes = bytes;
+        this.bytes = bytes.clone();                 // maintain immutability
         if (this.bytes[0] != COM_PORT_OPTION)
             throw new IllegalArgumentException("not a COM-PORT-OPTION");
-        this.command = bytes[1];
-        if (this.command != command && this.command != command + SERVER_OFFSET)
-            throw new IllegalArgumentException("not a " + getName() + " option");
+        if (command >= SERVER_OFFSET)
+            throw new IllegalArgumentException("invalid command " + command);
+        if (this.getCommand() != command && this.getCommand() != command + SERVER_OFFSET)
+            throw new IllegalArgumentException("not a " + name + " option");
     }
 
     /**
-     * Determine if this option is client-to-server or server-to-client.
+     * Determine if this command is client-to-server or server-to-client.
+     *
+     * @return true if this command is sent from the server to the client, false for the opposite
      */
     public final boolean isServerCommand() {
-        return this.command >= SERVER_OFFSET;
+        return this.getCommand() >= SERVER_OFFSET;
     }
 
     /**
@@ -58,16 +68,16 @@ public abstract class ComPortCommand {
      * @return encoding starting with {@code COM-PORT-OPTION}
      */
     public final int[] getBytes() {
-        return this.bytes.clone();
+        return this.bytes.clone();                  // maintain immutability
     }
 
     /**
-     * Get the option command byte.
+     * Get the command byte.
      *
-     * @return option command byte for this option type
+     * @return RFC 2217-defined byte value for this command
      */
     public final int getCommand() {
-        return this.command;
+        return this.bytes[1] & 0xff;
     }
 
     /**
@@ -101,13 +111,29 @@ public abstract class ComPortCommand {
     }
 
     /**
-     * Get minimum required length of the payload of this option.
+     * Get minimum required length of the payload of this command.
      */
     abstract int getMinPayloadLength();
 
     /**
-     * Get maximum required length of the payload of this option.
+     * Get maximum required length of the payload of this command.
      */
     abstract int getMaxPayloadLength();
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || obj.getClass() != getClass())
+            return false;
+        ComPortCommand that = (ComPortCommand)obj;
+        return Arrays.equals(this.bytes, that.bytes);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        for (int i = 0; i < this.bytes.length; i++)
+            hash = hash * 37 + this.bytes[i];
+        return hash;
+    }
 }
 
