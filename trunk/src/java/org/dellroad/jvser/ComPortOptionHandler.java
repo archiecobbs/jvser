@@ -10,7 +10,6 @@ package org.dellroad.jvser;
 
 import org.apache.log4j.Logger;
 import org.dellroad.jvser.telnet.TelnetOptionHandler;
-import static org.dellroad.jvser.RFC2217.*;
 
 /**
  * RFC 2217 telnet COM-PORT-OPTION.
@@ -23,7 +22,7 @@ public class ComPortOptionHandler extends TelnetOptionHandler {
     private final TelnetSerialPort port;
 
     protected ComPortOptionHandler(TelnetSerialPort telnetSerialPort) {
-        super(COM_PORT_OPTION, true, true, true, true);
+        super(RFC2217.COM_PORT_OPTION, true, false, true, false);
         if (telnetSerialPort == null)
             throw new IllegalArgumentException("null telnetSerialPort");
         this.port = telnetSerialPort;

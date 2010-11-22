@@ -57,12 +57,12 @@ public class FlowControlSuspendCommand extends ComPortCommand {
     }
 
     @Override
-    int getMinLength() {
+    int getMinPayloadLength() {
         return 0;
     }
 
     @Override
-    int getMaxLength() {
+    int getMaxPayloadLength() {
         return 0;
     }
 }

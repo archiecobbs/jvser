@@ -9,8 +9,6 @@ package org.dellroad.jvser.client;
 
 import java.net.InetAddress;
 
-import org.dellroad.jvser.TelnetSerialPort;
-
 /**
  * Launcher for the command line client.
  *

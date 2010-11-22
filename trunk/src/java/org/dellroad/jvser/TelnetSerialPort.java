@@ -10,7 +10,6 @@ package org.dellroad.jvser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.util.TooManyListenersException;
 
 import javax.comm.SerialPort;
@@ -106,7 +105,7 @@ public class TelnetSerialPort extends SerialPort {
     private int dataSize = DATASIZE_8;
     private int flowControlInbound = CONTROL_INBOUND_FLOW_NONE;
     private int flowControlOutbound = CONTROL_OUTBOUND_FLOW_NONE;
-    private int parity = PARITY_NONE;
+    private int parity = RFC2217.PARITY_NONE;
     private int stopSize = STOPSIZE_1;
 
     private boolean cd;
@@ -191,8 +190,9 @@ public class TelnetSerialPort extends SerialPort {
         tc.setReaderThread(true);                                   // allows immediate option negotiation
         try {
             tc.addOptionHandler(new TerminalTypeOptionHandler(DEFAULT_TERMINAL_TYPE, false, false, true, false));
-            tc.addOptionHandler(new EchoOptionHandler(true, false, true, false));
+            tc.addOptionHandler(new EchoOptionHandler(false, false, false, false));
             tc.addOptionHandler(new SuppressGAOptionHandler(true, true, true, true));
+            tc.addOptionHandler(new TransmitBinaryOptionHandler(true, true, true, true));
             tc.addOptionHandler(new ComPortOptionHandler(this));
         } catch (InvalidTelnetOptionException e) {
             throw new RuntimeException("unexpected exception", e);
@@ -219,12 +219,22 @@ public class TelnetSerialPort extends SerialPort {
     public synchronized void close() {
         if (this.state == State.CLOSED)
             return;
-        log.debug(this.name + ": closing connection");
         this.state = State.CLOSED;
+        log.debug(this.name + ": closing connection");
         try {
             this.telnetClient.disconnect();
         } catch (IOException e) {
             log.debug(this.name + ": exception closing TelnetClient (ignoring)", e);
+        }
+        try {
+            this.telnetClient.getInputStream().close();
+        } catch (IOException e) {
+            // ignore
+        }
+        try {
+            this.telnetClient.getOutputStream().close();
+        } catch (IOException e) {
+            // ignore
         }
     }
 
@@ -239,13 +249,13 @@ public class TelnetSerialPort extends SerialPort {
         this.state.checkNotClosed();
         switch (this.dataSize) {
         case DATASIZE_5:
-            return SerialPort.DATABITS_5;
+            return DATABITS_5;
         case DATASIZE_6:
-            return SerialPort.DATABITS_6;
+            return DATABITS_6;
         case DATASIZE_7:
-            return SerialPort.DATABITS_7;
+            return DATABITS_7;
         case DATASIZE_8:
-            return SerialPort.DATABITS_8;
+            return DATABITS_8;
         default:
             throw new RuntimeException("impossible case");
         }
@@ -256,11 +266,11 @@ public class TelnetSerialPort extends SerialPort {
         this.state.checkNotClosed();
         switch (this.stopSize) {
         case STOPSIZE_1:
-            return SerialPort.STOPBITS_1;
+            return STOPBITS_1;
         case STOPSIZE_2:
-            return SerialPort.STOPBITS_2;
+            return STOPBITS_2;
         case STOPSIZE_1_5:
-            return SerialPort.STOPBITS_1_5;
+            return STOPBITS_1_5;
         default:
             throw new RuntimeException("impossible case");
         }
@@ -270,15 +280,15 @@ public class TelnetSerialPort extends SerialPort {
     public synchronized int getParity() {
         this.state.checkNotClosed();
         switch (this.parity) {
-        case PARITY_NONE:
+        case RFC2217.PARITY_NONE:
             return SerialPort.PARITY_NONE;
-        case PARITY_ODD:
+        case RFC2217.PARITY_ODD:
             return SerialPort.PARITY_ODD;
-        case PARITY_EVEN:
+        case RFC2217.PARITY_EVEN:
             return SerialPort.PARITY_EVEN;
-        case PARITY_MARK:
+        case RFC2217.PARITY_MARK:
             return SerialPort.PARITY_MARK;
-        case PARITY_SPACE:
+        case RFC2217.PARITY_SPACE:
             return SerialPort.PARITY_SPACE;
         default:
             throw new RuntimeException("impossible case");
@@ -310,19 +320,17 @@ public class TelnetSerialPort extends SerialPort {
         this.state.checkNotClosed();
 
         // Validate bit combination
-        if ((flowControl & (SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_XONXOFF_IN))
-           == (SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_XONXOFF_IN)
-          || (flowControl & (SerialPort.FLOWCONTROL_RTSCTS_OUT | SerialPort.FLOWCONTROL_XONXOFF_OUT))
-           == (SerialPort.FLOWCONTROL_RTSCTS_OUT | SerialPort.FLOWCONTROL_XONXOFF_OUT))
+        if ((flowControl & (FLOWCONTROL_RTSCTS_OUT | FLOWCONTROL_XONXOFF_OUT)) == (FLOWCONTROL_RTSCTS_OUT | FLOWCONTROL_XONXOFF_OUT)
+         || (flowControl & (FLOWCONTROL_RTSCTS_IN | FLOWCONTROL_XONXOFF_IN)) == (FLOWCONTROL_RTSCTS_IN | FLOWCONTROL_XONXOFF_IN))
             throw new UnsupportedCommOperationException("invalid flow control value " + flowControl);
 
         // Convert to RFC 2217 values
         int previousFlowControlOutbound = this.flowControlOutbound;
         int previousFlowControlInbound = this.flowControlInbound;
-        this.flowControlOutbound = (flowControl & SerialPort.FLOWCONTROL_RTSCTS_OUT) != 0 ? CONTROL_OUTBOUND_FLOW_HARDWARE :
-          (flowControl & SerialPort.FLOWCONTROL_XONXOFF_OUT) != 0 ? CONTROL_OUTBOUND_FLOW_XON_XOFF : CONTROL_OUTBOUND_FLOW_NONE;
-        this.flowControlInbound = (flowControl & SerialPort.FLOWCONTROL_RTSCTS_IN) != 0 ? CONTROL_INBOUND_FLOW_HARDWARE :
-          (flowControl & SerialPort.FLOWCONTROL_XONXOFF_IN) != 0 ? CONTROL_INBOUND_FLOW_XON_XOFF : CONTROL_INBOUND_FLOW_NONE;
+        this.flowControlOutbound = (flowControl & FLOWCONTROL_RTSCTS_OUT) != 0 ? CONTROL_OUTBOUND_FLOW_HARDWARE :
+          (flowControl & FLOWCONTROL_XONXOFF_OUT) != 0 ? CONTROL_OUTBOUND_FLOW_XON_XOFF : CONTROL_OUTBOUND_FLOW_NONE;
+        this.flowControlInbound = (flowControl & FLOWCONTROL_RTSCTS_IN) != 0 ? CONTROL_INBOUND_FLOW_HARDWARE :
+          (flowControl & FLOWCONTROL_XONXOFF_IN) != 0 ? CONTROL_INBOUND_FLOW_XON_XOFF : CONTROL_INBOUND_FLOW_NONE;
 
         // Update server (outbound first per RFC 2217)
         if (this.flowControlOutbound != previousFlowControlOutbound && this.state.isEstablished())
@@ -334,7 +342,7 @@ public class TelnetSerialPort extends SerialPort {
     @Override
     public synchronized int getFlowControlMode() {
         this.state.checkNotClosed();
-        int value = SerialPort.FLOWCONTROL_NONE;
+        int value = FLOWCONTROL_NONE;
         switch (this.flowControlOutbound) {
         case CONTROL_OUTBOUND_FLOW_HARDWARE:
             value |= FLOWCONTROL_RTSCTS_OUT;
@@ -367,29 +375,29 @@ public class TelnetSerialPort extends SerialPort {
         if (baudRate <= 0)
             throw new UnsupportedCommOperationException("invalid baud rate " + baudRate);
         switch (dataBits) {
-        case SerialPort.DATABITS_5:
+        case DATABITS_5:
             dataBits = DATASIZE_5;
             break;
-        case SerialPort.DATABITS_6:
+        case DATABITS_6:
             dataBits = DATASIZE_6;
             break;
-        case SerialPort.DATABITS_7:
+        case DATABITS_7:
             dataBits = DATASIZE_7;
             break;
-        case SerialPort.DATABITS_8:
+        case DATABITS_8:
             dataBits = DATASIZE_8;
             break;
         default:
             throw new UnsupportedCommOperationException("invalid data bits " + dataBits);
         }
         switch (stopBits) {
-        case SerialPort.STOPBITS_1:
+        case STOPBITS_1:
             stopBits = STOPSIZE_1;
             break;
-        case SerialPort.STOPBITS_2:
+        case STOPBITS_2:
             stopBits = STOPSIZE_2;
             break;
-        case SerialPort.STOPBITS_1_5:
+        case STOPBITS_1_5:
             stopBits = STOPSIZE_1_5;
             break;
         default:
@@ -397,19 +405,19 @@ public class TelnetSerialPort extends SerialPort {
         }
         switch (parity) {
         case SerialPort.PARITY_NONE:
-            parity = PARITY_NONE;
+            parity = RFC2217.PARITY_NONE;
             break;
         case SerialPort.PARITY_ODD:
-            parity = PARITY_ODD;
+            parity = RFC2217.PARITY_ODD;
             break;
         case SerialPort.PARITY_EVEN:
-            parity = PARITY_EVEN;
+            parity = RFC2217.PARITY_EVEN;
             break;
         case SerialPort.PARITY_MARK:
-            parity = PARITY_MARK;
+            parity = RFC2217.PARITY_MARK;
             break;
         case SerialPort.PARITY_SPACE:
-            parity = PARITY_SPACE;
+            parity = RFC2217.PARITY_SPACE;
             break;
         default:
             throw new UnsupportedCommOperationException("invalid parity " + parity);

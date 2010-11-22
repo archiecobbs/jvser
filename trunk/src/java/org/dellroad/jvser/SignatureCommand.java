@@ -18,7 +18,7 @@ import static org.dellroad.jvser.RFC2217.*;
  */
 public class SignatureCommand extends ComPortCommand {
 
-    public static final String ENCODING = "UTF-8";
+    public static final String ENCODING = "ISO-8859-1";
 
     private final String signature;
     private boolean decodeFailed;
@@ -37,7 +37,7 @@ public class SignatureCommand extends ComPortCommand {
         String sig;
         boolean failed = false;
         try {
-            sig = "\"" + new String(this.getPayload(), ENCODING) + "\"";
+            sig = new String(this.getPayload(), ENCODING);
         } catch (UnsupportedEncodingException e) {
             sig = "(string decode failed)";
             failed = true;
@@ -54,7 +54,6 @@ public class SignatureCommand extends ComPortCommand {
      */
     public SignatureCommand(boolean client, String signature) {
         this(encode(client, signature));
-        this.decodeFailed = signature.length() > 0 && this.bytes.length == 2;
     }
 
     /**
@@ -73,7 +72,7 @@ public class SignatureCommand extends ComPortCommand {
 
     @Override
     public String toString() {
-        return this.getName() + " " + (this.signature.length() > 0 ? this.signature : "REQUEST");
+        return this.getName() + " " + (this.signature.length() > 0 ? "\"" + this.signature + "\"" : "REQUEST");
     }
 
     @Override
@@ -90,13 +89,13 @@ public class SignatureCommand extends ComPortCommand {
     }
 
     @Override
-    int getMinLength() {
+    int getMinPayloadLength() {
         return 0;
     }
 
     @Override
-    int getMaxLength() {
-        return Integer.MAX_VALUE;
+    int getMaxPayloadLength() {
+        return Integer.MAX_VALUE - 2;
     }
 
     private static int[] encode(boolean client, String signature) {
@@ -104,7 +103,7 @@ public class SignatureCommand extends ComPortCommand {
         try {
             buf = signature.getBytes(ENCODING);
         } catch (UnsupportedEncodingException e) {
-            buf = new byte[0];          // causes this.decodeFailed = true
+            buf = new byte[] { (byte)'?' };
         }
         int[] ibuf = new int[2 + buf.length];
         ibuf[0] = COM_PORT_OPTION;
