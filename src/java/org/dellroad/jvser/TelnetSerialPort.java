@@ -27,36 +27,54 @@ import org.dellroad.jvser.telnet.TerminalTypeOptionHandler;
 import static org.dellroad.jvser.RFC2217.*;
 
 /**
- * Implementation of the client side of the <a href="http://tools.ietf.org/html/rfc2217">RFC 2217</a>
- * serial-over-Telnet protocol.
+ * Implements the client side of the <a href="http://tools.ietf.org/html/rfc2217">RFC 2217</a>
+ * serial-over-Telnet protocol as as {@link SerialPort}.
  *
  * <p>
  * This class extends the {@link SerialPort} class and functions in the same way, however, there are
- * a couple of differences to be aware of.
- * </p>
+ * a couple of differences to be aware of:
+ * <ul>
+ * <li>
+ * To "open" a serial port, create an instance of this class, configure it as required,
+ * and then get the {@link TelnetClient} via {@link #getTelnetClient} and invoke
+ * {@link TelnetClient#connect(java.net.InetAddress, int) TelnetClient.connect()} (or one of its variants).
+ * This will create the telnet connection to the access server.
+ * </li>
  *
- * <p>
- * First, to create and "open" a serial port, instantiate an instance of this class, configure it as
- * required, and then "open" it by getting the {@link TelnetClient} via {@link #getTelnetClient} and
- * invoking some variant of {@link TelnetClient#connect(java.net.InetAddress, int) TelnetClient.connect()}.
- * This will initiate the actual telnet connection to the access server.
- * </p>
- *
- * <p>
- * Once connected, if the underlying telnet connection is broken, then an {@link IOException} will be
+ * <li>
+ * Once connected, if the underlying telnet connection is broken, an {@link IOException} will be
  * thrown when attempting to access the serial port input or output streams. In addition, a
- * {@link SerialPortEvent#DATA_AVAILABLE DATA_AVAILABLE} event will be immediately generated (assuming
- * a listener is registered and {@link #notifyOnDataAvailable notifyOnDataAvailable(true)} invoked).
+ * {@link SerialPortEvent#DATA_AVAILABLE DATA_AVAILABLE} event will be immediately generated.
+ * </li>
+ * </ul>
  * </p>
  *
+ * <p>
+ * The following optional functionality is not implemented and/or inappropriate for a networked connection:
+ * <ul>
+ * <li>Receive threshold</li>
+ * <li>Receive timeout</li>
+ * <li>Receive framing byte</li>
+ * <li>Input buffer size</li>
+ * <li>Output buffer size</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * In addition, access servers typically don't support {@link #notifyOnOutputEmpty}.
+ * </p>
+ *
+ * <p>
+ * Finally, {@link #sendBreak} is supported but the {@code millis} argument is ignored, as timing cannot be
+ * assured over a TCP connection. Access servers typically enforce a fixed break time.
+ * </p>
+ *
+ * @see SerialPort
  * @see <a href="http://tools.ietf.org/html/rfc2217">RFC 2217</a>
  */
 public class TelnetSerialPort extends SerialPort {
 
-    /**
-     * The default baud rate (specified in the {@link SerialPort} API documentation).
-     */
-    public static final int DEFAULT_BAUD_RATE = 9600;
+    private static final int DEFAULT_BAUD_RATE = 9600;
 
     private static final String DEFAULT_TERMINAL_TYPE = "VT100";
 
@@ -292,15 +310,6 @@ public class TelnetSerialPort extends SerialPort {
             if (this.state != State.ESTABLISHED)
                 return;
             this.sendSubnegotiation(new ControlCommand(true, CONTROL_BREAK_ON));
-        }
-        try {
-            Thread.currentThread().sleep(millis);
-        } catch (InterruptedException e) {
-            // ignore
-        }
-        synchronized (this) {
-            if (this.state != State.ESTABLISHED)
-                return;
             this.sendSubnegotiation(new ControlCommand(true, CONTROL_BREAK_OFF));
         }
     }

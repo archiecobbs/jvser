@@ -46,7 +46,7 @@ public class StopSizeCommand extends ComPortCommand {
      * Encoding constructor.
      *
      * @param stopSize stop size value
-     * @param client true for the client command, false for the server command
+     * @param client true for the client-to-server command, false for the server-to-client command
      * @throws IllegalArgumentException if {@code stopSize} is not a valid RFC 2217 stop size value
      */
     public StopSizeCommand(boolean client, int stopSize) {

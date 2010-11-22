@@ -50,7 +50,7 @@ public class SignatureCommand extends ComPortCommand {
      * Encoding constructor.
      *
      * @param signature signature string
-     * @param client true for the client command, false for the server command
+     * @param client true for the client-to-server command, false for the server-to-client command
      */
     public SignatureCommand(boolean client, String signature) {
         this(encode(client, signature));

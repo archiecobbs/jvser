@@ -36,7 +36,7 @@ public class NotifyModemStateCommand extends ComPortCommand {
      * Encoding constructor.
      *
      * @param modemState modem state value
-     * @param client true for the client command, false for the server command
+     * @param client true for the client-to-server command, false for the server-to-client command
      */
     public NotifyModemStateCommand(boolean client, int modemState) {
         this(new int[] {

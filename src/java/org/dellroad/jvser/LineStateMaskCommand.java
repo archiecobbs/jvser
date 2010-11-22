@@ -36,7 +36,7 @@ public class LineStateMaskCommand extends ComPortCommand {
      * Encoding constructor.
      *
      * @param lineStateMask line state mask value
-     * @param client true for the client command, false for the server command
+     * @param client true for the client-to-server command, false for the server-to-client command
      */
     public LineStateMaskCommand(boolean client, int lineStateMask) {
         this(new int[] {
