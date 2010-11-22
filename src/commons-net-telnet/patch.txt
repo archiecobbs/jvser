@@ -186,14 +186,14 @@ Index: TelnetInputStream.java
              }
          }
          catch (IOException ioe)
-@@ -623,6 +641,7 @@
-             synchronized (__queue)
+@@ -624,6 +642,7 @@
              {
                  __ioException = ioe;
-+                __client.notifyInputListener();
              }
++            __client.notifyInputListener();
          }
  
+         synchronized (__queue)
 Index: TelnetClient.java
 ===================================================================
 --- TelnetClient.java	(revision 1037076)
