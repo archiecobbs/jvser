@@ -26,7 +26,7 @@ public class FlowControlResumeCommand extends ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[1]} is not {@link RFC2217#FLOWCONTROL_RESUME} (client or server)
      */
     public FlowControlResumeCommand(int[] bytes) {
-        super(bytes, FLOWCONTROL_RESUME);
+        super("FLOWCONTROL-RESUME", FLOWCONTROL_RESUME, bytes);
     }
 
     /**
@@ -39,11 +39,6 @@ public class FlowControlResumeCommand extends ComPortCommand {
             COM_PORT_OPTION,
             client ? FLOWCONTROL_RESUME : FLOWCONTROL_RESUME + SERVER_OFFSET,
         });
-    }
-
-    @Override
-    public String getName() {
-        return "FLOWCONTROL-RESUME";
     }
 
     @Override

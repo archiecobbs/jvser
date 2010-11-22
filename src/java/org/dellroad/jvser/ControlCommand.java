@@ -29,7 +29,7 @@ public class ControlCommand extends ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[2]} is not a valid RFC 2217 control value
      */
     public ControlCommand(int[] bytes) {
-        super(bytes, SET_CONTROL);
+        super("SET-CONTROL", SET_CONTROL, bytes);
         this.control = bytes[2];
         switch (this.control) {
         case CONTROL_OUTBOUND_FLOW_REQUEST:
@@ -71,11 +71,6 @@ public class ControlCommand extends ComPortCommand {
             client ? SET_CONTROL : SET_CONTROL + SERVER_OFFSET,
             command
         });
-    }
-
-    @Override
-    public String getName() {
-        return "SET-CONTROL";
     }
 
     @Override

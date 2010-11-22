@@ -16,20 +16,23 @@ import static org.dellroad.jvser.RFC2217.*;
  */
 public abstract class ComPortCommand {
 
-    final int[] bytes;
+    final String name;
     final int command;
+    final int[] bytes;
 
     /**
      * Constructor.
      *
-     * @param bytes encoded option starting with the {@code COM-PORT-OPTION} byte
+     * @param name human readable name of this command
      * @param command required COM-PORT-OPTION option command (client version)
+     * @param bytes encoded option starting with the {@code COM-PORT-OPTION} byte
      * @throws NullPointerException if {@code bytes} is null
      * @throws IllegalArgumentException if {@code bytes} has length that is too short or too long
      * @throws IllegalArgumentException if {@code bytes[0]} is not {@link RFC2217#COM_PORT_OPTION}
      * @throws IllegalArgumentException if {@code bytes[1]} is not {@code command} (either client or server version)
      */
-    protected ComPortCommand(int[] bytes, int command) {
+    protected ComPortCommand(String name, int command, int[] bytes) {
+        this.name = name;
         int minLength = 2 + this.getMinPayloadLength();
         int maxLength = 2 + this.getMaxPayloadLength();
         if (bytes.length < minLength || bytes.length > maxLength)
@@ -70,7 +73,9 @@ public abstract class ComPortCommand {
     /**
      * Get the human-readable name of this option.
      */
-    public abstract String getName();
+    public String getName() {
+        return this.name + (this.isServerCommand() ? "[S]" : "[C]");
+    }
 
     /**
      * Get the human-readable description of this option.

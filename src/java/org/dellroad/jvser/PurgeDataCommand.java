@@ -29,7 +29,7 @@ public class PurgeDataCommand extends ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[2]} is not a valid RFC 2217 purge data value
      */
     public PurgeDataCommand(int[] bytes) {
-        super(bytes, PURGE_DATA);
+        super("PURGE-DATA", PURGE_DATA, bytes);
         this.purgeData = bytes[2];
         switch (this.purgeData) {
         case PURGE_DATA_RECEIVE_DATA_BUFFER:
@@ -54,11 +54,6 @@ public class PurgeDataCommand extends ComPortCommand {
             client ? PURGE_DATA : PURGE_DATA + SERVER_OFFSET,
             purgeData
         });
-    }
-
-    @Override
-    public String getName() {
-        return "PURGE-DATA";
     }
 
     @Override

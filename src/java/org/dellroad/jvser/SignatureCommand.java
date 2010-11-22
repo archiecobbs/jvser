@@ -33,7 +33,7 @@ public class SignatureCommand extends ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[1]} is not {@link RFC2217#SIGNATURE} (client or server)
      */
     public SignatureCommand(int[] bytes) {
-        super(bytes, SIGNATURE);
+        super("SIGNATURE", SIGNATURE, bytes);
         String sig;
         boolean failed = false;
         try {
@@ -63,11 +63,6 @@ public class SignatureCommand extends ComPortCommand {
      */
     public SignatureCommand(boolean client) {
         this(encode(client, ""));
-    }
-
-    @Override
-    public String getName() {
-        return "SIGNATURE";
     }
 
     @Override

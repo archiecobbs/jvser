@@ -28,7 +28,7 @@ public class LineStateMaskCommand extends ComPortCommand {
      * @throws IllegalArgumentException if {@code bytes[1]} is not {@link RFC2217#SET_LINESTATE_MASK} (client or server)
      */
     public LineStateMaskCommand(int[] bytes) {
-        super(bytes, SET_LINESTATE_MASK);
+        super("SET-LINESTATE-MASK", SET_LINESTATE_MASK, bytes);
         this.lineStateMask = bytes[2];
     }
 
@@ -44,11 +44,6 @@ public class LineStateMaskCommand extends ComPortCommand {
             client ? SET_LINESTATE_MASK : SET_LINESTATE_MASK + SERVER_OFFSET,
             lineStateMask
         });
-    }
-
-    @Override
-    public String getName() {
-        return "SET-LINESTATE-MASK";
     }
 
     @Override
