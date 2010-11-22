@@ -44,8 +44,8 @@ public class Client implements SerialPortEventListener {
     private int stopBits = SerialPort.STOPBITS_1;
     private int parity = SerialPort.PARITY_NONE;
     private int flowControl = SerialPort.FLOWCONTROL_NONE;
-    private boolean dtr;
-    private boolean rts;
+    private boolean dtr = true;
+    private boolean rts = true;
 
     public Client(InetAddress host, int tcpPort, boolean useThread, boolean logInput) {
         this.host = host;
@@ -75,6 +75,8 @@ public class Client implements SerialPortEventListener {
         this.port.notifyOnOverrunError(true);
         this.port.notifyOnParityError(true);
         this.port.notifyOnRingIndicator(true);
+        this.port.setRTS(this.rts);
+        this.port.setDTR(this.dtr);
 
         // Connect port
         log.info("connecting to " + this.host + ":" + this.tcpPort);

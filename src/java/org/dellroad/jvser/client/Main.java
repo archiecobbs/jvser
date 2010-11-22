@@ -67,8 +67,8 @@ public final class Main extends MainClass {
             break;
         }
 
-        // Configure logging
-        setLogLevel(debug ? Level.DEBUG : Level.INFO);
+        // Setup logging
+        setupLogging(debug ? Level.DEBUG : Level.INFO);
 
         // Start client
         new Client(host, port, useThread, logInput).run();
