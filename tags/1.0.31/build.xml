@@ -1,0 +1,181 @@
+<!-- $Id$ -->
+
+<project name="jvser" default="build"
+  xmlns:dellroad="urn:org.dellroad.ant"
+  xmlns:antcontrib="urn:net.sf.antcontrib"
+  xmlns:ivy="urn:org.apache.ivy.ant">
+
+    <!-- Configure build & stuff -->
+    <property name="library.version" value="1.0"/>
+    <property name="javac.compiler.flags" value="-Xlint:all"/>
+    <property name="findbugs.home" value="/usr/share/findbugs-1.3.9"/>
+
+    <!-- Import generic build macros -->
+    <import file="${basedir}/src/build/macros.xml"/>
+
+    <!-- Determine SVN revision and full version -->
+    <dellroad:svnrevision property="svn.revision"/>
+    <property name="full.version" value="${library.version}.${svn.revision}"/>
+    <echo message=""/>
+    <echo message="Version is ${library.version}.${svn.revision}"/>
+    <echo message=""/>
+
+    <!-- Classpath targets -->
+    <target name="javac.classpath" unless="javac.classpath.resolved">
+        <dellroad:ivypath pathid="javac.classpath" conf="javac"/>
+        <property name="javac.classpath.resolved" value="true"/>
+    </target>
+
+    <target name="runtime.classpath" unless="runtime.classpath.resolved">
+        <dellroad:ivypath pathid="runtime.classpath" conf="runtime"/>
+        <property name="runtime.classpath.resolved" value="true"/>
+    </target>
+
+    <target name="unittest.classpath" unless="unittest.classpath.resolved">
+        <dellroad:ivypath pathid="unittest.classpath" conf="test"/>
+        <property name="unittest.classpath.resolved" value="true"/>
+    </target>
+
+    <target name="findbugs" description="Run FindBugs report" depends="javac">
+        <dellroad:findbugs location="${findbugs.home}" style="fancy-hist"/>
+    </target>
+
+    <target name="showbugs" description="Show FindBugs report using GUI" depends="findbugs">
+        <dellroad:showbugs location="${findbugs.home}"/>
+    </target>
+
+    <!-- Update patch file -->
+    <target name="update-patch" description="update commons-net patch file">
+        <exec executable="/bin/bash" logError="true" failonerror="true">
+            <arg value="-cx"/>
+            <arg value="( cd src/commons-net-telnet/modsrc &amp;&amp; svn diff ) &gt; src/commons-net-telnet/patch.txt"/>
+        </exec>
+    </target>
+
+    <!-- Custom patches to commons-net telnet package -->
+    <target name="telnet.sources" unless="telnet.sources.completed">
+        <delete dir="build/java/org/dellroad/jvser/telnet"/>
+        <mkdir dir="build/java/org/dellroad/jvser/telnet"/>
+        <copy todir="build/java/org/dellroad/jvser/telnet">
+            <fileset dir="src/commons-net-telnet/src"/>
+        </copy>
+        <patch patchfile="src/commons-net-telnet/patch.txt" dir="build/java/org/dellroad/jvser/telnet" strip="0"/>
+        <replace dir="build/java/org/dellroad/jvser/telnet"
+          token="org.apache.commons.net.telnet" value="org.dellroad.jvser.telnet"/>
+        <property name="telnet.sources.completed" value="true"/>
+    </target>
+
+    <!-- Custom javac target to include patched commons-net stuff -->
+    <target name="javac" depends="telnet.sources, javac.classpath, testng.classpath" unless="javac.completed">
+        <copy todir="build/java">
+            <fileset dir="src/java"/>
+        </copy>
+        <mkdir dir="build/classes"/>
+        <dellroad:javac-default srcdir="build/java" destdir="build/classes">
+            <classpath refid="javac.classpath"/>
+        </dellroad:javac-default>
+        <mkdir dir="build/test"/>
+        <dellroad:javac-default srcdir="src/test" destdir="build/test">
+            <classpath path="build/classes"/>
+            <classpath refid="javac.classpath"/>
+            <classpath refid="testng.classpath"/>
+        </dellroad:javac-default>
+        <property name="javac.completed" value="true"/>
+    </target>
+
+    <!-- Build distribution files -->
+    <target name="jars" depends="javac, javadoc, runtime.classpath" unless="jars.completed">
+        <mkdir dir="build/resources"/>
+        <copy todir="build/resources">
+            <fileset dir="src/properties" includes="jvser.properties"/>
+            <filterset>
+                <filter token="VERSION" value="${full.version}"/>
+            </filterset>
+        </copy>
+        <delete dir="build/dist"/>
+        <mkdir dir="build/dist"/>
+        <jar destfile="build/dist/${ant.project.name}-${full.version}.jar">
+            <fileset dir="build/classes"/>
+            <fileset dir="build/resources"/>
+            <fileset dir="src/java" includes="**/*.xml"/>
+            <manifest>
+                <attribute name="Main-Class" value="org.dellroad.jvser.client.Main"/>
+            </manifest>
+        </jar>
+        <zip destfile="build/dist/${ant.project.name}-sources-${full.version}.zip">
+            <fileset dir="src/java" includes="**/*"/>
+        </zip>
+        <zip destfile="build/dist/${ant.project.name}-javadocs-${full.version}.zip">
+            <fileset dir="build/reports/javadoc" includes="**/*"/>
+        </zip>
+        <property name="jars.completed" value="true"/>
+    </target>
+
+    <!-- Build Javadocs -->
+    <target name="javadoc" depends="javac">
+        <delete dir="build/javadoc"/>
+        <mkdir dir="build/javadoc"/>
+        <copy todir="build/javadoc">
+            <fileset dir="src/java/org/dellroad/jvser" includes="overview.html"/>
+            <filterset>
+                <filter token="VERSION" value="${full.version}"/>
+            </filterset>
+        </copy>
+        <dellroad:javadoc overview="build/javadoc/overview.html">
+            <additional-classpath>
+                <pathelement path="build/classes"/>
+            </additional-classpath>
+            <links>
+                <link href="http://download.oracle.com/javase/6/docs/api/"/>
+                <link href="http://download.oracle.com/docs/cd/E17802_01/products/products/javacomm/reference/api/"/>
+                <link href="http://commons.apache.org/net/apidocs/"/>
+                <link href="http://logging.apache.org/log4j/1.2/apidocs/"/>
+            </links>
+        </dellroad:javadoc>
+    </target>
+
+    <!-- Checkstyle the source -->
+    <target name="checkstyle" description="Run checkstyle report"
+      depends="javac.classpath, unittest.classpath, checkstyle.classpath">
+        <dellroad:checkstyle maxWarnings="5" maxErrors="0">
+            <excludes>
+                <exclude name="commons-net-telnet/**/*"/>
+            </excludes>
+        </dellroad:checkstyle>
+    </target>
+
+    <!-- Run unit tests -->
+    <target name="tests" description="Run unit tests"
+      depends="javac, unittest.classpath, testng.classpath, cobertura.classpath">
+        <copy todir="build/test" overwrite="true">
+            <fileset dir="src/test">
+                <include name="**/*.xml"/>
+            </fileset>
+        </copy>
+        <dellroad:unit-tests/>
+    </target>
+
+    <!-- Publish reports -->
+    <target name="publish" description="Publish build results" depends="reports">
+
+        <!-- Remove exisiting stuff first -->
+        <delete includeemptydirs="false">
+            <fileset dir="publish">
+                <include name="**/*"/>
+            </fileset>
+        </delete>
+
+        <!-- Reports -->
+        <mkdir dir="publish/reports"/>
+        <copy todir="publish/reports">
+            <fileset dir="build/reports">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- Default target -->
+    <target name="build" depends="clean, jars, reports"/>
+
+</project>
+
