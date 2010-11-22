@@ -86,7 +86,7 @@
     <target name="jars" depends="javac, javadoc, runtime.classpath" unless="jars.completed">
         <mkdir dir="build/resources"/>
         <copy todir="build/resources">
-            <fileset dir="src/properties" inclues="jvser.properties"/>
+            <fileset dir="src/properties" includes="jvser.properties"/>
             <filterset>
                 <filter token="VERSION" value="${full.version}"/>
             </filterset>
@@ -119,7 +119,8 @@
             <links>
                 <link href="http://download.oracle.com/javase/6/docs/api/"/>
                 <link href="http://download.oracle.com/docs/cd/E17802_01/products/products/javacomm/reference/api/"/>
-                <link href="http://commons.apache.org/net/api-release/"/>
+                <link href="http://commons.apache.org/net/apidocs/"/>
+                <link href="http://logging.apache.org/log4j/1.2/apidocs/"/>
             </links>
         </dellroad:javadoc>
     </target>
