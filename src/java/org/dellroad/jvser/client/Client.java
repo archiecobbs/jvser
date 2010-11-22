@@ -47,6 +47,14 @@ public class Client implements SerialPortEventListener {
     private boolean dtr = true;
     private boolean rts = true;
 
+    /**
+     * Constructor.
+     *
+     * @param host host to connect to
+     * @param tcpPort TCP to connect to
+     * @param useThread spawn a thread to read input
+     * @param logInput display input using log messages (for debugging)
+     */
     public Client(InetAddress host, int tcpPort, boolean useThread, boolean logInput) {
         this.host = host;
         this.tcpPort = tcpPort;
@@ -54,6 +62,9 @@ public class Client implements SerialPortEventListener {
         this.logInput = logInput;
     }
 
+    /**
+     * Initiate connection and perform client function.
+     */
     public void run() throws Exception {
 
         // Sanity check
@@ -232,8 +243,24 @@ public class Client implements SerialPortEventListener {
     public void serialEvent(SerialPortEvent event) {
         if (event.getEventType() != SerialPortEvent.DATA_AVAILABLE)
             log.info("rec'd serial port event " + decodeSerialEvent(event));
-        if (!this.useThread)
-            readData();
+        if (!this.useThread) {
+            while (true) {
+
+                // Any more data to read?
+                try {
+                    if (this.port.getInputStream().available() <= 0)
+                        break;
+                } catch (IOException e) {
+                    if (!this.done) {
+                        log.error("exception while reading: " + e);
+                        this.done = true;
+                    }
+                }
+
+                // Read it
+                readData();
+            }
+        }
     }
 
     private void readData() {
