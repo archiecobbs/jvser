@@ -90,10 +90,10 @@ public class ControlCommand extends ComPortCommand {
             desc = "OUTBOUND-FLOW-HARDWARE";
             break;
         case CONTROL_BREAK_REQUEST:
-            desc = "OUTBOUND-BREAK_REQUEST";
+            desc = "OUTBOUND-BREAK-REQUEST";
             break;
         case CONTROL_BREAK_ON:
-            desc = "OUTBOUND-BREAK_ON";
+            desc = "OUTBOUND-BREAK-ON";
             break;
         case CONTROL_BREAK_OFF:
             desc = "OUTBOUND-BREAK-OFF";
