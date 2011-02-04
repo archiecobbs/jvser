@@ -30,7 +30,7 @@ public final class Version {
         if (input == null)
             throw new RuntimeException("can't find resource " + PROPERTIES_RESOURCE);
         try {
-            properties.load(Version.class.getResourceAsStream("/jvser.properties"));
+            properties.load(input);
         } catch (IOException e) {
             throw new RuntimeException("unexpected exception", e);
         } finally {
