@@ -1,8 +1,8 @@
 Index: TelnetInputStream.java
 ===================================================================
---- TelnetInputStream.java	(revision 1084253)
+--- TelnetInputStream.java	(revision 1084265)
 +++ TelnetInputStream.java	(working copy)
-@@ -121,6 +121,7 @@
+@@ -122,6 +122,7 @@
       * or -1 (EOF) if end of stread reached,
       * or -2 (WOULD_BLOCK) if mayBlock is false and there is no data available
       */
@@ -10,34 +10,3 @@ Index: TelnetInputStream.java
      private int __read(boolean mayBlock) throws IOException
      {
          int ch;
-Index: TelnetClient.java
-===================================================================
---- TelnetClient.java	(revision 1084253)
-+++ TelnetClient.java	(working copy)
-@@ -94,16 +94,7 @@
-     protected void _connectAction_() throws IOException
-     {
-         super._connectAction_();
--        InputStream input;
--        TelnetInputStream tmp;
--
--        if (FromNetASCIIInputStream.isConversionRequired())
--            input = new FromNetASCIIInputStream(_input_);
--        else
--            input = _input_;
--
--
--        tmp = new TelnetInputStream(input, this, readerThread);
-+        TelnetInputStream tmp = new TelnetInputStream(_input_, this, readerThread);
-         if(readerThread)
-         {
-             tmp._start();
-@@ -115,7 +106,7 @@
-         // now it looks like classes like InputStreamReader are not implemented
-         // in a safe manner.
-         __input = new BufferedInputStream(tmp);
--        __output = new ToNetASCIIOutputStream(new TelnetOutputStream(this));
-+        __output = new TelnetOutputStream(this);
-     }
- 
-     /***
