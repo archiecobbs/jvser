@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="5.3">
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/AbstractComPortCommandSwitch.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/BaudRateCommand.java">
+<error line="34" column="47" severity="info" message="&apos;24&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="34" column="61" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="34" column="75" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="34" column="89" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="34" column="103" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="34" column="115" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="47" column="26" severity="info" message="&apos;24&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="48" column="26" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="49" column="26" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="70" column="16" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="75" column="16" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/ComPortCommand.java">
+<error line="136" column="27" severity="info" message="&apos;37&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/ComPortCommandSwitch.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/ComPortOptionHandler.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/ControlCommand.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/DataSizeCommand.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/FlowControlResumeCommand.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/FlowControlSuspendCommand.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/LineStateMaskCommand.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/ModemStateMaskCommand.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/NotifyLineStateCommand.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/NotifyModemStateCommand.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/ParityCommand.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/PurgeDataCommand.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/RFC2217.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/SignatureCommand.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/StopSizeCommand.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/TelnetSerialPort.java">
+<error line="581" column="23" severity="info" message="Anonymous inner class length is 120 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/TransmitBinaryOptionHandler.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/Util.java">
+<error line="43" column="56" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="44" column="29" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="45" column="33" severity="info" message="&apos;7&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/Version.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/client/Client.java">
+<error line="42" column="28" severity="info" message="&apos;9600&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="68" column="5" severity="info" message="Executable statement count is 39 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="144" column="5" severity="info" message="Executable statement count is 43 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="146" column="33" severity="info" message="&apos;500&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="167" column="18" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="170" column="18" severity="info" message="&apos;6&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="173" column="18" severity="info" message="&apos;7&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="176" column="18" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="201" column="31" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="203" column="36" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="205" column="36" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="267" column="31" severity="info" message="&apos;8192&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/client/Main.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/client/MainClass.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/client/package-info.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/java/org/dellroad/jvser/package-info.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/test/org/dellroad/jvser/TestSupport.java">
+</file>
+<file name="/home/archie/projects/jvser/trunk/src/test/org/dellroad/jvser/package-info.java">
+</file>
+</checkstyle>
