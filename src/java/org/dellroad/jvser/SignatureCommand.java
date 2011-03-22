@@ -9,7 +9,9 @@ package org.dellroad.jvser;
 
 import java.io.UnsupportedEncodingException;
 
-import static org.dellroad.jvser.RFC2217.*;
+import static org.dellroad.jvser.RFC2217.COM_PORT_OPTION;
+import static org.dellroad.jvser.RFC2217.SERVER_OFFSET;
+import static org.dellroad.jvser.RFC2217.SIGNATURE;
 
 /**
  * RFC 2217 {@code SIGNATURE} command.

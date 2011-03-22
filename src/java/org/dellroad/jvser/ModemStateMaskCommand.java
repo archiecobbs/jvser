@@ -7,7 +7,9 @@
 
 package org.dellroad.jvser;
 
-import static org.dellroad.jvser.RFC2217.*;
+import static org.dellroad.jvser.RFC2217.COM_PORT_OPTION;
+import static org.dellroad.jvser.RFC2217.SERVER_OFFSET;
+import static org.dellroad.jvser.RFC2217.SET_MODEMSTATE_MASK;
 
 /**
  * RFC 2217 {@code SET-MODEMSTATE-MASK} command.

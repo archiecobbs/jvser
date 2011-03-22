@@ -7,7 +7,9 @@
 
 package org.dellroad.jvser;
 
-import static org.dellroad.jvser.RFC2217.*;
+import static org.dellroad.jvser.RFC2217.COM_PORT_OPTION;
+import static org.dellroad.jvser.RFC2217.FLOWCONTROL_SUSPEND;
+import static org.dellroad.jvser.RFC2217.SERVER_OFFSET;
 
 /**
  * RFC 2217 {@code FLOWCONTROL-SUSPEND} command.

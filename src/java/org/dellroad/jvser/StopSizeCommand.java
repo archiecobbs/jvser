@@ -7,7 +7,13 @@
 
 package org.dellroad.jvser;
 
-import static org.dellroad.jvser.RFC2217.*;
+import static org.dellroad.jvser.RFC2217.COM_PORT_OPTION;
+import static org.dellroad.jvser.RFC2217.SERVER_OFFSET;
+import static org.dellroad.jvser.RFC2217.SET_STOPSIZE;
+import static org.dellroad.jvser.RFC2217.STOPSIZE_1;
+import static org.dellroad.jvser.RFC2217.STOPSIZE_1_5;
+import static org.dellroad.jvser.RFC2217.STOPSIZE_2;
+import static org.dellroad.jvser.RFC2217.STOPSIZE_REQUEST;
 
 /**
  * RFC 2217 {@code SET-STOPSIZE} command.

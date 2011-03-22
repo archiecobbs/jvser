@@ -9,7 +9,8 @@ package org.dellroad.jvser;
 
 import java.util.Arrays;
 
-import static org.dellroad.jvser.RFC2217.*;
+import static org.dellroad.jvser.RFC2217.COM_PORT_OPTION;
+import static org.dellroad.jvser.RFC2217.SERVER_OFFSET;
 
 /**
  * Superclass for RFC 2217 commands.

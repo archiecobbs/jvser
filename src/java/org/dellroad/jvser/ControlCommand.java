@@ -7,7 +7,29 @@
 
 package org.dellroad.jvser;
 
-import static org.dellroad.jvser.RFC2217.*;
+import static org.dellroad.jvser.RFC2217.COM_PORT_OPTION;
+import static org.dellroad.jvser.RFC2217.CONTROL_BREAK_OFF;
+import static org.dellroad.jvser.RFC2217.CONTROL_BREAK_ON;
+import static org.dellroad.jvser.RFC2217.CONTROL_BREAK_REQUEST;
+import static org.dellroad.jvser.RFC2217.CONTROL_DTR_OFF;
+import static org.dellroad.jvser.RFC2217.CONTROL_DTR_ON;
+import static org.dellroad.jvser.RFC2217.CONTROL_DTR_REQUEST;
+import static org.dellroad.jvser.RFC2217.CONTROL_INBOUND_FLOW_DTR;
+import static org.dellroad.jvser.RFC2217.CONTROL_INBOUND_FLOW_HARDWARE;
+import static org.dellroad.jvser.RFC2217.CONTROL_INBOUND_FLOW_NONE;
+import static org.dellroad.jvser.RFC2217.CONTROL_INBOUND_FLOW_REQUEST;
+import static org.dellroad.jvser.RFC2217.CONTROL_INBOUND_FLOW_XON_XOFF;
+import static org.dellroad.jvser.RFC2217.CONTROL_OUTBOUND_FLOW_DCD;
+import static org.dellroad.jvser.RFC2217.CONTROL_OUTBOUND_FLOW_DSR;
+import static org.dellroad.jvser.RFC2217.CONTROL_OUTBOUND_FLOW_HARDWARE;
+import static org.dellroad.jvser.RFC2217.CONTROL_OUTBOUND_FLOW_NONE;
+import static org.dellroad.jvser.RFC2217.CONTROL_OUTBOUND_FLOW_REQUEST;
+import static org.dellroad.jvser.RFC2217.CONTROL_OUTBOUND_FLOW_XON_XOFF;
+import static org.dellroad.jvser.RFC2217.CONTROL_RTS_OFF;
+import static org.dellroad.jvser.RFC2217.CONTROL_RTS_ON;
+import static org.dellroad.jvser.RFC2217.CONTROL_RTS_REQUEST;
+import static org.dellroad.jvser.RFC2217.SERVER_OFFSET;
+import static org.dellroad.jvser.RFC2217.SET_CONTROL;
 
 /**
  * RFC 2217 {@code SET-CONTROL} command.
