@@ -33,7 +33,7 @@
 <FONT color="green">030</FONT>            if (input == null)<a name="line.30"></a>
 <FONT color="green">031</FONT>                throw new RuntimeException("can't find resource " + PROPERTIES_RESOURCE);<a name="line.31"></a>
 <FONT color="green">032</FONT>            try {<a name="line.32"></a>
-<FONT color="green">033</FONT>                properties.load(Version.class.getResourceAsStream("/jvser.properties"));<a name="line.33"></a>
+<FONT color="green">033</FONT>                properties.load(input);<a name="line.33"></a>
 <FONT color="green">034</FONT>            } catch (IOException e) {<a name="line.34"></a>
 <FONT color="green">035</FONT>                throw new RuntimeException("unexpected exception", e);<a name="line.35"></a>
 <FONT color="green">036</FONT>            } finally {<a name="line.36"></a>
