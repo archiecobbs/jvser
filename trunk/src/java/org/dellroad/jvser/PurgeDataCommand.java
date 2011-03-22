@@ -7,7 +7,12 @@
 
 package org.dellroad.jvser;
 
-import static org.dellroad.jvser.RFC2217.*;
+import static org.dellroad.jvser.RFC2217.COM_PORT_OPTION;
+import static org.dellroad.jvser.RFC2217.PURGE_DATA;
+import static org.dellroad.jvser.RFC2217.PURGE_DATA_BOTH_DATA_BUFFERS;
+import static org.dellroad.jvser.RFC2217.PURGE_DATA_RECEIVE_DATA_BUFFER;
+import static org.dellroad.jvser.RFC2217.PURGE_DATA_TRANSMIT_DATA_BUFFER;
+import static org.dellroad.jvser.RFC2217.SERVER_OFFSET;
 
 /**
  * RFC 2217 {@code PURGE-DATA} command.

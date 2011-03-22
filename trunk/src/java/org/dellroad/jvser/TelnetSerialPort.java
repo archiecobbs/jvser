@@ -24,7 +24,35 @@ import org.dellroad.jvser.telnet.SuppressGAOptionHandler;
 import org.dellroad.jvser.telnet.TelnetClient;
 import org.dellroad.jvser.telnet.TelnetInputListener;
 import org.dellroad.jvser.telnet.TerminalTypeOptionHandler;
-import static org.dellroad.jvser.RFC2217.*;
+import static org.dellroad.jvser.RFC2217.CONTROL_BREAK_OFF;
+import static org.dellroad.jvser.RFC2217.CONTROL_BREAK_ON;
+import static org.dellroad.jvser.RFC2217.CONTROL_DTR_OFF;
+import static org.dellroad.jvser.RFC2217.CONTROL_DTR_ON;
+import static org.dellroad.jvser.RFC2217.CONTROL_INBOUND_FLOW_HARDWARE;
+import static org.dellroad.jvser.RFC2217.CONTROL_INBOUND_FLOW_NONE;
+import static org.dellroad.jvser.RFC2217.CONTROL_INBOUND_FLOW_XON_XOFF;
+import static org.dellroad.jvser.RFC2217.CONTROL_OUTBOUND_FLOW_HARDWARE;
+import static org.dellroad.jvser.RFC2217.CONTROL_OUTBOUND_FLOW_NONE;
+import static org.dellroad.jvser.RFC2217.CONTROL_OUTBOUND_FLOW_XON_XOFF;
+import static org.dellroad.jvser.RFC2217.CONTROL_RTS_OFF;
+import static org.dellroad.jvser.RFC2217.CONTROL_RTS_ON;
+import static org.dellroad.jvser.RFC2217.DATASIZE_5;
+import static org.dellroad.jvser.RFC2217.DATASIZE_6;
+import static org.dellroad.jvser.RFC2217.DATASIZE_7;
+import static org.dellroad.jvser.RFC2217.DATASIZE_8;
+import static org.dellroad.jvser.RFC2217.LINESTATE_BREAK_DETECT;
+import static org.dellroad.jvser.RFC2217.LINESTATE_DATA_READY;
+import static org.dellroad.jvser.RFC2217.LINESTATE_FRAMING_ERROR;
+import static org.dellroad.jvser.RFC2217.LINESTATE_OVERRUN_ERROR;
+import static org.dellroad.jvser.RFC2217.LINESTATE_PARITY_ERROR;
+import static org.dellroad.jvser.RFC2217.LINESTATE_TRANSFER_SHIFT_REGISTER_EMPTY;
+import static org.dellroad.jvser.RFC2217.MODEMSTATE_CARRIER_DETECT;
+import static org.dellroad.jvser.RFC2217.MODEMSTATE_CTS;
+import static org.dellroad.jvser.RFC2217.MODEMSTATE_DSR;
+import static org.dellroad.jvser.RFC2217.MODEMSTATE_RING_INDICATOR;
+import static org.dellroad.jvser.RFC2217.STOPSIZE_1;
+import static org.dellroad.jvser.RFC2217.STOPSIZE_1_5;
+import static org.dellroad.jvser.RFC2217.STOPSIZE_2;
 
 /**
  * Implements the client side of the <a href="http://tools.ietf.org/html/rfc2217">RFC 2217</a>

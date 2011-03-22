@@ -7,7 +7,15 @@
 
 package org.dellroad.jvser;
 
-import static org.dellroad.jvser.RFC2217.*;
+import static org.dellroad.jvser.RFC2217.COM_PORT_OPTION;
+import static org.dellroad.jvser.RFC2217.PARITY_EVEN;
+import static org.dellroad.jvser.RFC2217.PARITY_MARK;
+import static org.dellroad.jvser.RFC2217.PARITY_NONE;
+import static org.dellroad.jvser.RFC2217.PARITY_ODD;
+import static org.dellroad.jvser.RFC2217.PARITY_REQUEST;
+import static org.dellroad.jvser.RFC2217.PARITY_SPACE;
+import static org.dellroad.jvser.RFC2217.SERVER_OFFSET;
+import static org.dellroad.jvser.RFC2217.SET_PARITY;
 
 /**
  * RFC 2217 {@code SET-PARITY} command.

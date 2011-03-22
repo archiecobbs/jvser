@@ -7,7 +7,14 @@
 
 package org.dellroad.jvser;
 
-import static org.dellroad.jvser.RFC2217.*;
+import static org.dellroad.jvser.RFC2217.COM_PORT_OPTION;
+import static org.dellroad.jvser.RFC2217.DATASIZE_5;
+import static org.dellroad.jvser.RFC2217.DATASIZE_6;
+import static org.dellroad.jvser.RFC2217.DATASIZE_7;
+import static org.dellroad.jvser.RFC2217.DATASIZE_8;
+import static org.dellroad.jvser.RFC2217.DATASIZE_REQUEST;
+import static org.dellroad.jvser.RFC2217.SERVER_OFFSET;
+import static org.dellroad.jvser.RFC2217.SET_DATASIZE;
 
 /**
  * RFC 2217 {@code SET-DATASIZE} command.
