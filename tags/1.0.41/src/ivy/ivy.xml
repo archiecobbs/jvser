@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="http://ivyroundup.googlecode.com/svn/trunk/src/xsl/ivy-doc.xsl"?>
+
+<!-- $Id$ -->
+<ivy-module version="1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+    <info organisation="org.dellroad" module="jvser">
+        <license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+        <description homepage="http://jvser.googlecode.com/">
+            The jvser project
+        </description>
+    </info>
+
+    <configurations>
+        <conf name="base" description="JARs required at both compile and runtime"/>
+        <conf name="javac" extends="base" transitive="false" description="JARs required at compile time"/>
+        <conf name="test" extends="base" description="JARs required during testing"/>
+        <conf name="runtime" extends="base" description="JARs required at execution time"/>
+    </configurations>
+
+    <dependencies>
+        <dependency force="true" org="javax.comm" name="comm" rev="3.0.u1" conf="base->default"/>
+        <dependency force="true" org="org.apache.commons" name="commons-net" rev="2.2" conf="base->default"/>
+        <dependency force="true" org="org.apache.log4j" name="log4j" rev="[1.2.15,1.3)" conf="base->default"/>
+    </dependencies>
+
+</ivy-module>
