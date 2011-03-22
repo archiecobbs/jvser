@@ -152,7 +152,34 @@ Index: TelnetClient.java
  
      /***
       * Default TelnetClient constructor.
-@@ -329,9 +330,29 @@
+@@ -93,16 +94,7 @@
+     protected void _connectAction_() throws IOException
+     {
+         super._connectAction_();
+-        InputStream input;
+-        TelnetInputStream tmp;
+-
+-        if (FromNetASCIIInputStream.isConversionRequired())
+-            input = new FromNetASCIIInputStream(_input_);
+-        else
+-            input = _input_;
+-
+-
+-        tmp = new TelnetInputStream(input, this, readerThread);
++        TelnetInputStream tmp = new TelnetInputStream(_input_, this, readerThread);
+         if(readerThread)
+         {
+             tmp._start();
+@@ -114,7 +106,7 @@
+         // now it looks like classes like InputStreamReader are not implemented
+         // in a safe manner.
+         __input = new BufferedInputStream(tmp);
+-        __output = new ToNetASCIIOutputStream(new TelnetOutputStream(this));
++        __output = new TelnetOutputStream(this);
+     }
+ 
+     /***
+@@ -329,9 +321,29 @@
  
      /***
       * Sets the status of the reader thread.
@@ -184,7 +211,7 @@ Index: TelnetClient.java
       ***/
      public void setReaderThread(boolean flag)
      {
-@@ -341,10 +362,57 @@
+@@ -341,10 +353,57 @@
      /***
       * Gets the status of the reader thread.
       * <p>
