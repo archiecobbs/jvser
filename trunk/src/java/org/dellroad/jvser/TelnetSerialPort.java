@@ -17,13 +17,13 @@ import javax.comm.SerialPortEvent;
 import javax.comm.SerialPortEventListener;
 import javax.comm.UnsupportedCommOperationException;
 
+import org.apache.commons.net.telnet.EchoOptionHandler;
+import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.apache.commons.net.telnet.SuppressGAOptionHandler;
+import org.apache.commons.net.telnet.TelnetClient;
+import org.apache.commons.net.telnet.TelnetInputListener;
+import org.apache.commons.net.telnet.TerminalTypeOptionHandler;
 import org.apache.log4j.Logger;
-import org.dellroad.jvser.telnet.EchoOptionHandler;
-import org.dellroad.jvser.telnet.InvalidTelnetOptionException;
-import org.dellroad.jvser.telnet.SuppressGAOptionHandler;
-import org.dellroad.jvser.telnet.TelnetClient;
-import org.dellroad.jvser.telnet.TelnetInputListener;
-import org.dellroad.jvser.telnet.TerminalTypeOptionHandler;
 import static org.dellroad.jvser.RFC2217.CONTROL_BREAK_OFF;
 import static org.dellroad.jvser.RFC2217.CONTROL_BREAK_ON;
 import static org.dellroad.jvser.RFC2217.CONTROL_DTR_OFF;
@@ -240,6 +240,8 @@ public class TelnetSerialPort extends SerialPort {
             tc.addOptionHandler(new SuppressGAOptionHandler(true, true, true, true));
             tc.addOptionHandler(new TransmitBinaryOptionHandler(true, true, true, true));
             tc.addOptionHandler(new ComPortOptionHandler(this));
+        } catch (IOException e) {
+            throw new RuntimeException("unexpected exception", e);
         } catch (InvalidTelnetOptionException e) {
             throw new RuntimeException("unexpected exception", e);
         }

@@ -7,9 +7,8 @@
 
 package org.dellroad.jvser;
 
-
+import org.apache.commons.net.telnet.TelnetOptionHandler;
 import org.apache.log4j.Logger;
-import org.dellroad.jvser.telnet.TelnetOptionHandler;
 
 /**
  * RFC 2217 telnet COM-PORT-OPTION.
