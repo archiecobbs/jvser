@@ -20,7 +20,7 @@
 
     <dependencies>
         <dependency force="true" org="javax.comm" name="comm" rev="3.0.u1" conf="base->default"/>
-        <dependency force="true" org="org.apache.commons" name="commons-net" rev="2.2" conf="base->default"/>
+        <dependency force="true" org="org.apache.commons" name="commons-net" rev="3.0.1" conf="base->default"/>
         <dependency force="true" org="org.apache.log4j" name="log4j" rev="[1.2.15,1.3)" conf="base->default"/>
     </dependencies>
 

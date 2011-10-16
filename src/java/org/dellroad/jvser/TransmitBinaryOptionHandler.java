@@ -7,7 +7,7 @@
 
 package org.dellroad.jvser;
 
-import org.dellroad.jvser.telnet.TelnetOptionHandler;
+import org.apache.commons.net.telnet.TelnetOptionHandler;
 
 /**
  * Handler for the telnet {@code TRANSMIT-BINARY} option defined by RFC 856.
