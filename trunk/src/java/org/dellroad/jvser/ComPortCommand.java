@@ -43,8 +43,10 @@ public abstract class ComPortCommand {
         this.name = name;
         int minLength = 2 + this.getMinPayloadLength();
         int maxLength = 2 + this.getMaxPayloadLength();
-        if (bytes.length < minLength || bytes.length > maxLength)
-            throw new IllegalArgumentException("length = " + bytes.length + " is not in the range " + minLength + ".." + maxLength);
+        if (bytes.length < minLength || bytes.length > maxLength) {
+            throw new IllegalArgumentException("command " + command + " length = "
+              + bytes.length + " is not in the range " + minLength + ".." + maxLength);
+        }
         this.bytes = bytes.clone();                 // maintain immutability
         if (this.bytes[0] != COM_PORT_OPTION)
             throw new IllegalArgumentException("not a COM-PORT-OPTION");
