@@ -1,7 +1,7 @@
 
 Release 1.0.48 - March 18, 2012
 
-    - Fix deadlock bug (isse #1)
+    - Fix deadlock bug (issue #1)
     - Update to commons-net 3.0.1
 
 Release 1.0.41 - March 22, 2011
