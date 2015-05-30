@@ -2,4 +2,4 @@
 
 RFC 2217 defines a TCP protocol for virtualizing traditional serial ports over a telnet stream. This allows clients to connect to remote serial lines using access servers that support this protocol.
 
-**jvser** provides the [TelnetSerialPort](http://archiecobbs.github.io/jvser/publish/reports/javadoc/org/dellroad/jvser/TelnetSerialPort.html) class which implements the Java standard [javax.comm.SerialPort](http://download.oracle.com/docs/cd/E17802_01/products/products/javacomm/reference/api/javax/comm/SerialPort.html) API, and so is backward compatible with existing Java software that works with serial ports.
+**jvser** provides the [TelnetSerialPort](http://archiecobbs.github.io/jvser/publish/reports/javadoc/index.html?org/dellroad/jvser/TelnetSerialPort.html) class which implements the Java standard [javax.comm.SerialPort](http://download.oracle.com/docs/cd/E17802_01/products/products/javacomm/reference/api/javax/comm/SerialPort.html) API, and so is backward compatible with existing Java software that works with serial ports.
